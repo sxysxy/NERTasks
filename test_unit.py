@@ -3,10 +3,10 @@
 # License: GPL-v3
 # 单元测试
 
-from myutils import NERTokenizerFromDataset, load_datasets
+from myutils import NERTokenizerFromDataset, dataset_map_raw2ner, load_datasets
 import pdb
 from torch.utils.data import DataLoader
-from transformers import BertTokenizer
+from transformers import AutoTokenizer, BertTokenizer
 
 def test_tokenizer():
     tokenizer = NERTokenizerFromDataset()
@@ -28,19 +28,15 @@ def test_tokenizer():
     pdb.set_trace()
 
 def test_loaddataset():
-    dataset = load_datasets('conll2003-base')
-    tokenizer = BertTokenizer.from_pretrained("bert-base-uncased")
+    raw_dataset = load_datasets('conll2003-base')
+    tokenizer : BertTokenizer = AutoTokenizer.from_pretrained("bert-base-uncased")
 
-    ds_train = dataset["train"]
-    ds_test = dataset["test"]
+    sample_raw = raw_dataset["train"][0]
 
-    sample = ds_train[0]
-
-    loader = DataLoader(ds_train, batch_size=4)
-
-    def map_rawds(examples):
-        pass
-        
+    ner_dataset = raw_dataset.map(lambda x : dataset_map_raw2ner(tokenizer, x), batched=True)
+    ner_dataset.set_format('torch', columns=["input_ids", "attention_mask", "length", "tags"])
+    
+    loader = DataLoader(ner_dataset["train"], batch_size=4)
 
     sample_batch = loader.__iter__().next()
 
@@ -48,4 +44,5 @@ def test_loaddataset():
 
 
 if __name__ == "__main__":
-    pdb.set_trace()
+    #test_tokenizer()
+    test_loaddataset()

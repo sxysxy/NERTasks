@@ -5,6 +5,7 @@
 
 from datasets import load_dataset, load_metric
 import os
+import argparse
 
 class Configs:
     '''
@@ -22,6 +23,10 @@ class Configs:
         self.lstm_layers : float = namespec.lstm_layers
         self.lstm_hidden_size : float = namespec.lstm_hidden_size
         self.embedding_size : float = namespec.embedding_size
+        self.random_seed : float = namespec.random_seed
+
+    def parse_from_argv(self):
+        pass
         
     def __getitem__(self, idx):
         return object.__getattribute__(self, idx)
@@ -52,9 +57,24 @@ class NERTokenizerFromDataset:
                     self.word2idx[word] = n 
                     self.idx2word.append(word)
                     n += 1
+    
+    class BatchEncodedData:
+        def __init__(self, input_ids, attention_mask, length, word_ids) -> None:
+            self.input_ids = input_ids
+            self.attention_mask = attention_mask
+            self.length = length
+            self.word_ids_ = word_ids
+        def __getitem__(self, idx):
+            return object.__getattribute__(self, idx)
+
+        def word_ids(self, sample_idx_in_batch):
+            '''
+            取得本批数据中制定下标的数据的word_ids
+            '''
+            return self.word_ids_[sample_idx_in_batch]
 
     def batch_encode_plus(self, texts : list[list[str]], add_special_tokens=True, padding = True, truncation = True, max_length = 512,
-                                                 return_length = True, is_split_to_words = True):
+                                                 return_length = True, is_split_into_words = True):
         '''
         类似于transformers.BertTokenizer.batch_encode_plus
         由于针对NER任务，所以is_split_to_words参数实际上是忽略的，是默认有效的，只是为了和transformers的保持接口的兼容
@@ -68,16 +88,22 @@ class NERTokenizerFromDataset:
         word_ids = []
         for t in texts:
             ids = []
+            wids = []
             if add_special_tokens:
                 ids.append(self.cls_token_id)
+                wids.append(None)
             if truncation:
                 valid_t = t[:max_length-2] if add_special_tokens else t[:max_length]
             else:
                 valid_t = t
-            for w in valid_t:
+            for j, w in enumerate(valid_t):
                 ids.append(self.word2idx.get(w, self.unk_token_id))
+                wids.append(j)
+
             if add_special_tokens:
                 ids.append(self.sep_token_id)
+                wids.append(None)
+
             real_len = len(ids)
 
             assert real_len <= max_length
@@ -86,6 +112,7 @@ class NERTokenizerFromDataset:
             if padding:
                 if real_len < max_length:
                     ids += [self.pad_token_id] * (max_length - real_len)
+                    wids += [None] * (max_length - real_len)
                     attention_mask.append( ([1] * real_len) + [0] * (max_length - real_len) )
                 else:
                     attention_mask.append( [1] * real_len )
@@ -93,13 +120,9 @@ class NERTokenizerFromDataset:
                 attention_mask.append( [1] * real_len )
 
             input_ids.append(ids)
-            word_ids.append(list(range(real_len)))
-        return {
-            "input_ids" : input_ids,
-            "word_ids" : word_ids,
-            "length" : length,
-            "attention_mask" : attention_mask
-        }
+            word_ids.append(wids)
+
+        return self.BatchEncodedData(input_ids, attention_mask, length, word_ids)
             
     def batch_decode(self, batch_ids : list[list[int]], ignore_special_tokens = False):    
         texts = []
@@ -150,3 +173,26 @@ def load_datasets(name):
     return load_dataset(f"{get_current_full_dirname()}/load_datasets.py", name)
 
 os.environ["raw_datasets_path"] = f"{get_current_full_dirname()}/assets/raw_datasets"
+
+
+def dataset_map_raw2ner(tokenizer, examples):
+    tokenized = tokenizer.batch_encode_plus(examples["tokens"], add_special_tokens=True, is_split_into_words=True, 
+                                            padding=True, max_length=512, truncation=True, return_length=True)
+
+    batch_tags = []
+    for sample_i, tags in enumerate(examples["tags"]):
+        wids = tokenized.word_ids(sample_i)
+        real_tags = []
+        for wid in wids:
+            if wid is None:
+                real_tags.append(-100)  #Ignore index for pytorch
+            else:
+                real_tags.append(tags[wid])
+        batch_tags.append(real_tags)
+    
+    return {
+        "input_ids" : tokenized["input_ids"],
+        "attention_mask" : tokenized["attention_mask"],
+        "length" : tokenized["length"],
+        "tags" : batch_tags
+    }

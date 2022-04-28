@@ -29,7 +29,7 @@ It implements:
 
 # Requirements:
 
-Linux/Windows with Nvidia GPUs, or MacOS(no GPU acceleration).
+Linux(Tested)/Windows(Not Tested) with Nvidia GPUs, or MacOS(no GPU acceleration). 
 
 # Install dependencies.
 
