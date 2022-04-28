@@ -39,6 +39,7 @@ def test_loaddataset():
     loader = DataLoader(ds_train, batch_size=4)
 
     def map_rawds(examples):
+        pass
         
 
     sample_batch = loader.__iter__().next()
