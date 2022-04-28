@@ -1,6 +1,6 @@
 #-*- coding:utf-8
 # Author: 石响宇(18281273@bjtu.edu.cn)
-# License: GPL-v3
+# License: LGPL-v3
 # 单元测试
 
 from myutils import NERTokenizerFromDataset, dataset_map_raw2ner, load_datasets
@@ -44,5 +44,5 @@ def test_loaddataset():
 
 
 if __name__ == "__main__":
-    #test_tokenizer()
+    test_tokenizer()
     test_loaddataset()

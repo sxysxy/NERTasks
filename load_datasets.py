@@ -1,6 +1,6 @@
 #-*- coding: utf-8
 # Author: 石响宇(18281273@bjtu.edu.cn)
-# License: GPL-v3
+# License: LGPL-v3
 # 加载数据集，使用这个文件的时候，要确保在datasets.load_dataset(本文件)之前设置os.environ["raw_datasets_path"]，数据集的路径
 # 看起来可能很像TextMosaic里面的代码，因为TextMosaic里那套代码也是我写的
 

@@ -1,6 +1,6 @@
 #-*- coding:utf-8
 # Author: 石响宇(18281273@bjtu.edu.cn) 
-# License: GPL-v3
+# License: LGPL-v3
 # 一些通用的东西
 
 from datasets import load_dataset, load_metric
@@ -18,7 +18,7 @@ class Configs:
         self.ner_lr : float = namespec.ner_lr
         self.use_bert : bool = namespec.use_bert
         self.bert_name_or_path : str = namespec.bert_name_or_path
-        self.label_smooth_ratio : float = namespec.label_smooth_ratio
+        self.label_smooth_factor : float = namespec.label_smooth_factor
         self.dropout_ratio : float = namespec.dropout_ratio
         self.lstm_layers : float = namespec.lstm_layers
         self.lstm_hidden_size : float = namespec.lstm_hidden_size
