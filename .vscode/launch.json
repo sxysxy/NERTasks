@@ -1,0 +1,11 @@
+{
+    "configurations": [
+        {
+            "name": "TestUnit",
+            "type": "python",
+            "request": "launch",
+            "program": "test_unit.py",
+            "console": "integratedTerminal",
+        }
+    ]
+}
