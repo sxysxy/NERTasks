@@ -69,7 +69,7 @@ class NERTrainer:
         self.clip_grad_norm = clip_grad_norm
         self.grad_acc = grad_acc if grad_acc else 1
 
-    def train(self, num_epochs, train_dataloader : DataLoader, eval_function : Callable, ):
+    def train(self, num_epochs, train_dataloader : DataLoader, eval_function : Callable):
         '''
         num_epochs : 训练轮数
         train_dataloader : 训练集数据加载器。
@@ -133,7 +133,7 @@ class NERTrainer:
                 eval_metrics = eval_function(model)
                 metrics_ep.update(eval_metrics)
                 model.train()
-            
+        
             all_metrics["metrics_each_epoch"].append(metrics_ep)
         
         all_metrics["num_epoches"] = num_epochs

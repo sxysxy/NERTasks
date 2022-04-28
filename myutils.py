@@ -3,6 +3,7 @@
 # License: LGPL-v3
 # 一些通用的东西
 
+from unicodedata import name
 from datasets import load_dataset, load_metric
 import os
 import argparse
@@ -16,7 +17,9 @@ class Configs:
         self.ner_epoches : int = namespec.ner_epoches
         self.warmup_ratio : float = namespec.warnmup_ratio
         self.ner_lr : float = namespec.ner_lr
+        self.ner_weight_decay : float = namespec.ner_weight_decay
         self.use_bert : bool = namespec.use_bert
+        self.model_name : str = namespec.model_name
         self.bert_name_or_path : str = namespec.bert_name_or_path
         self.label_smooth_factor : float = namespec.label_smooth_factor
         self.dropout_ratio : float = namespec.dropout_ratio
@@ -24,9 +27,34 @@ class Configs:
         self.lstm_hidden_size : float = namespec.lstm_hidden_size
         self.embedding_size : float = namespec.embedding_size
         self.random_seed : float = namespec.random_seed
+    
+    cached_config = None
 
-    def parse_from_argv(self):
-        pass
+    @classmethod
+    def parse_from_argv(cls):
+        if cls.cached_config:
+            return Configs.cached_config
+
+        ps = argparse.ArgumentParser()
+        ps.add_argument("--dataset", choices=['conll2003', 'ontonotes5', 'cmeee'], type=str, required=True, 
+                            help="Choose dataset")
+        ps.add_argument("--ner_epoches", type=int, default=10, 
+                            help="The number of training epochs on NER Task")
+        ps.add_argument("--warmup_ratio", type=float, default=0.2,
+                            help="Warmup epoches / total epoches")
+        ps.add_argument("--ner_lr", type=float, default=3e-4,
+                            help="Learning rate")
+        ps.add_argument("--ner_weight_decay", type=float, default=5e-3,
+                            help="L2 penalty")
+        ps.add_argument("--use_bert", action='store_true', 
+                            help="Whether to use bert")
+        ps.add_argument("--model_name", choices=['BiLSTM-Linear', 'BiLSTM-Linear-CRF'], type=str,
+                            help="For no bert, specific which model to use")
+        
+
+        spec = ps.parse_args()
+        cls.cached_config = Configs(spec)
+        return cls.cached_config
         
     def __getitem__(self, idx):
         return object.__getattribute__(self, idx)
@@ -175,8 +203,8 @@ def load_datasets(name):
 os.environ["raw_datasets_path"] = f"{get_current_full_dirname()}/assets/raw_datasets"
 
 
-def dataset_map_raw2ner(tokenizer, examples):
-    tokenized = tokenizer.batch_encode_plus(examples["tokens"], add_special_tokens=True, is_split_into_words=True, 
+def dataset_map_raw2ner(tokenizer, add_special_tokens, examples):
+    tokenized = tokenizer.batch_encode_plus(examples["tokens"], add_special_tokens=add_special_tokens, is_split_into_words=True, 
                                             padding=True, max_length=512, truncation=True, return_length=True)
 
     batch_tags = []
