@@ -19,14 +19,34 @@
             "type": "python",
             "request": "launch",
             "program": "main.py",
+            "console": "integratedTerminal",
             "args": [
                 "--dataset", "conll2003",
+               // "--model", "BERT-Prompt",
+               // "--model", "BiLSTM-Linear-CRF",
+               // "--model", "BERT-Linear",
+               // "--model", "BERT-BiLSTM-Linear",
                 "--model", "BERT-BiLSTM-Linear-CRF",
-                "--clip_grad_norm", "-1",
-                "--warmup_ratio", "-1",
                 "--label_smooth_factor", "-1",
-                "--ner_lr", "0.001",
-                "--ner_epoches", "40"
+               // "--ner_lr", "0.001",
+                "--ner_lr", "0.0001",
+                "--ner_epoches", "20",
+                "--embedding_size", "100",
+                "--lstm_layers", "2",
+                "--lstm_hidden_size", "512",
+                "--batch_size", "1",
+                "--grad_acc", "32"
+            ]
+        },
+        {
+            "name" : "PromptEngineering",
+            "type": "python",
+            "request": "launch",
+            "program": "prompt_engineering.py",
+            "console": "integratedTerminal",
+            "args": [
+                "--dataset", "conll2003",
+                "--model", "BERT-Prompt"
             ]
         }
     ]

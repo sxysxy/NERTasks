@@ -89,6 +89,11 @@ class AllDatasets(datasets.GeneratorBasedBuilder):
                 origin_texts = list(map(lambda x : x.strip().split(' '), filter(lambda t : len(t.strip()) > 0, f.readlines())))
             with open(f"{args['filename']}/seq.out") as f:
                 origin_tags = list(map(lambda x : x.strip().split(' '), filter(lambda t : len(t.strip()) > 0, f.readlines())))
+           
+        else:
+            pass
+        
+        if self.config.name.endswith("base"):
             s = 0
             for pair in zip(origin_texts, origin_tags):
                 yield s, {
@@ -96,5 +101,3 @@ class AllDatasets(datasets.GeneratorBasedBuilder):
                     "tags" : pair[1]
                 }
                 s += len(pair[0])
-        else:
-            pass

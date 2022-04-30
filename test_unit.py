@@ -3,7 +3,7 @@
 # License: LGPL-v3
 # 单元测试
 
-from myutils import NERTokenizerFromDataset, dataset_map_raw2ner, load_datasets
+from myutils import NERTokenizerFromDataset, auto_get_tag_names, dataset_map_raw2ner, NERDatasetsConfigs, get_base_dirname, get_datasets, dataset_map_raw2prompt
 import pdb
 from torch.utils.data import DataLoader
 from transformers import AutoTokenizer, BertTokenizer
@@ -28,21 +28,40 @@ def test_tokenizer():
     pdb.set_trace()
 
 def test_loaddataset():
-    raw_dataset = load_datasets('conll2003-base')
+    raw_dataset = get_datasets('conll2003-base')
     tokenizer : BertTokenizer = AutoTokenizer.from_pretrained("bert-base-uncased")
 
     sample_raw = raw_dataset["train"][0]
 
-    ner_dataset = raw_dataset.map(lambda x : dataset_map_raw2ner(tokenizer, x), batched=True)
-    ner_dataset.set_format('torch', columns=["input_ids", "attention_mask", "length", "tags"])
-    
-    loader = DataLoader(ner_dataset["train"], batch_size=4)
+   # ner_dataset = raw_dataset.map(lambda x : dataset_map_raw2ner(tokenizer, x), batched=True)
+   # ner_dataset.set_format('torch', columns=["input_ids", "attention_mask", "length", "tags"])
+    ner_dataset, _ = dataset_map_raw2ner(raw_dataset, tokenizer)
+    sample_ner = ner_dataset["train"][0]
+
+    loader = DataLoader(ner_dataset["train"], batch_size=1)
 
     sample_batch = loader.__iter__().next()
 
     pdb.set_trace()
 
+def test_loaddataset_prompt():
+    raw_dataset = get_datasets('conll2003-base')
+    tokenizer : BertTokenizer = AutoTokenizer.from_pretrained(f"{get_base_dirname()}/assets/pretrained_models/bert-base-uncased-conll2003-prompt")
+    tag_names = NERDatasetsConfigs.configs["conll2003"]["tag_names"]
+
+    prompt_dataset = raw_dataset.map(lambda x : dataset_map_raw2prompt(tokenizer, tag_names, x), batched=True)
+    prompt_dataset.set_format('torch', columns=["input_ids", "attention_mask", "length", "tags"])
+
+    sample = prompt_dataset["train"][0]
+
+    loader = DataLoader(prompt_dataset["train"], batch_size=4)
+    sample_batch = loader.__iter__().next()
+
+    pdb.set_trace()
+
+
 
 if __name__ == "__main__":
-    test_tokenizer()
+  #  test_tokenizer()
     test_loaddataset()
+  #  test_loaddataset_prompt()

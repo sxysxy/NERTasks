@@ -1,4 +1,10 @@
+#-*- coding:utf-8
+# Author: 石响宇(18281273@bjtu.edu.cn) 
+# License: LGPL-v3
+# 训练器
+
 from typing import Callable
+from numpy import full
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -57,7 +63,8 @@ class NERTrainer:
             warmup_ratio : float,
             label_smooth_factor : float,
             clip_grad_norm : float,
-            grad_acc : float
+            grad_acc : int,
+            data_columns : list,
                 ):
         self.model = model
         self.optimizer = optimizer
@@ -68,8 +75,7 @@ class NERTrainer:
             self.label_smoother = LabelSmoother(label_smooth_factor, ignore_index=-100)
         self.clip_grad_norm = clip_grad_norm
         self.grad_acc = grad_acc if grad_acc else 1
-
-    NER_DATA_COLUMNS = ["input_ids", "attention_mask", "tags", "length"]
+        self.data_columns = data_columns
 
     def train(self, num_epochs, train_dataloader : DataLoader, eval_function : Callable):
         '''
@@ -91,26 +97,23 @@ class NERTrainer:
 
         time_used_sec = 0
         for epoch_i in range(num_epochs):
-            epoch_loss = 0
-            grad_acc_cnt = 0
             def optim_step():
                 if self.clip_grad_norm:
                     torch.nn.utils.clip_grad_norm_(model.parameters(), self.clip_grad_norm)
                 optimizer.step()
                 optimizer.zero_grad()
-            with tqdm(desc=f"Epoch {epoch_i}", total=len(train_dataloader), unit="ba") as bar:
+            with tqdm(desc=f"Epoch {epoch_i + 1}", total=len(train_dataloader), unit="ba") as bar:
+                epoch_loss = 0
+                grad_acc_cnt = 0
                 start_time = datetime.now()  
-                for batch in train_dataloader:
-                    batch_gpu = {
-                        "input_ids" : batch["input_ids"].cuda(),
-                        "attention_mask" : batch["attention_mask"].cuda(),
-                        "tags" : batch["tags"].cuda(),
-                        "length" : batch["length"].cuda()
-                    }
-                    if self.label_smoother is None:
-                        loss : torch.Tensor = model(**batch_gpu)['loss'].mean() / self.grad_acc
-                    else:
-                        loss : torch.Tensor = self.label_smoother(model(**batch_gpu), batch_gpu['tags']) / self.grad_acc
+                for batch_i, batch in enumerate(train_dataloader):
+                    batch_gpu = {}
+                    for col in self.data_columns:
+                        batch_gpu[col] = batch[col].cuda()
+                    # if self.label_smoother is None:
+                    loss : torch.Tensor = model(**batch_gpu)['loss'].mean() / self.grad_acc
+                    #else:
+                    #   loss : torch.Tensor = self.label_smoother(model(**batch_gpu), batch_gpu['tags']) / self.grad_acc
                     loss.backward()
                     epoch_loss += loss.item()
                     grad_acc_cnt += 1
@@ -120,9 +123,9 @@ class NERTrainer:
                     bar.update(1)
                 if grad_acc_cnt != 0:
                     optim_step()
-                    if lr_sched:
-                        lr_sched.step()
-                    bar.update(1)
+                if lr_sched:
+                    lr_sched.step()
+                bar.update(1)
 
                 end_time = datetime.now()
                 dur = end_time - start_time

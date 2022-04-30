@@ -1,3 +1,8 @@
+#-*- coding:utf-8
+# Author: 石响宇(18281273@bjtu.edu.cn) 
+# License: LGPL-v3
+# 通过数据集构建tokenizer，类型为NERTokenizerFromDataset，接口类似于BertTokenizer
+
 import os
 from myutils import NERDatasetsConfigs, get_base_dirname, NERTokenizerFromDataset, load_datasets
 

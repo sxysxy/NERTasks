@@ -3,16 +3,21 @@
 # License: LGPL-v3
 # 一些通用的东西
 
+
+from typing import Tuple
 from datasets import load_dataset, load_metric
+from datasets.dataset_dict import DatasetDict
 import os
 import sys
 import argparse
 import pdb
-
+import copy
 from transformers import AutoTokenizer, AdamW
-from ner_models import NER_BERT_BiLSTM_Linear, NER_BERT_BiLSTM_Linear_CRF, NER_BERT_Linear, NER_BiLSTM_Linear, NER_BiLSTM_Linear_CRF
+from typer import prompt
+from ner_models import NER_BERT_BiLSTM_Linear, NER_BERT_BiLSTM_Linear_CRF, NER_BERT_Linear, NER_BERT_Prompt, NER_BiLSTM_Linear, NER_BiLSTM_Linear_CRF
 import pickle
 import ujson as json
+import torch
 
 class Configs:
     '''
@@ -61,7 +66,7 @@ class Configs:
         ps.add_argument("--model_name", choices=['BiLSTM-Linear', 'BiLSTM-Linear-CRF', 
                                                  'BERT-BiLSTM-Linear-CRF', 'BERT-Linear', 
                                                  "BERT-BiLSTM-Linear", "BERT-BiLSTM-Linear-CRF", 
-                                                 "BERT(Prompt)"],
+                                                 "BERT-Prompt"],
                             type=str, required=True,
                             help="For no bert, specific which model to use.")
         ps.add_argument("--bert_name_or_path", type=str, 
@@ -96,7 +101,22 @@ class Configs:
 
     @property
     def using_bert(self):
-        return self.model_name in ["BERT-BiLSTM-Linear-CRF", "BERT(Prompt)", "BERT-Linear"]
+        return self.model_name in ["BERT-BiLSTM-Linear-CRF", "BERT-Prompt", "BERT-Linear"]
+
+    @property
+    def using_prompt(self):
+        return self.model_name in ["BERT-Prompt"]
+
+    @property
+    def __dict__(self):
+        d = {}
+        for k in ["dataset_name", "ner_epoches", "warmup_ratio", 
+         "grad_acc", "batch_size", "clip_grad_norm", "ner_lr", "ner_weight_decay",
+         "model_name", "bert_name_or_path", "label_smooth_factor", "dropout_ratio",
+         "lstm_layers", "lstm_hidden_size", "embedding_size", "random_seed", 
+         "few_shot"]:
+            d[k] = self[k]
+        return d
 
 
 class NERTokenizerFromDataset:
@@ -207,7 +227,9 @@ class NERTokenizerFromDataset:
     @property
     def vocab_size(self):
         return len(self.word2idx)
-
+    @property
+    def vocab(self):
+        return self.word2idx
     @property
     def pad_token_id(self):
         return 0
@@ -232,7 +254,10 @@ class NERTokenizerFromDataset:
     @property
     def unk_token(self):
         return "[UNK]"
-
+    @property
+    def do_lower_case(self):
+        return False
+ 
     @classmethod
     def from_pretrained(cls, path):
         with open(os.path.join(path, "tokenizer.bin"), "rb") as f:
@@ -261,10 +286,9 @@ def get_ner_evaluation():
 
 os.environ["assets_path"] = f"{get_base_dirname()}/assets"
 
-def dataset_map_raw2ner(tokenizer, examples):
+def dataset_map_raw2ner_kernel(tokenizer, examples):
     tokenized = tokenizer.batch_encode_plus(examples["tokens"], add_special_tokens=True, is_split_into_words=True, 
-                                            padding='max_length', max_length=512, truncation=True, return_length=True)
-
+                                            padding=False, max_length=512, truncation=True, return_length=True)
     batch_tags = []
     length = []
     for sample_i, tags in enumerate(examples["tags"]):
@@ -279,11 +303,87 @@ def dataset_map_raw2ner(tokenizer, examples):
         length.append(sum(tokenized["attention_mask"][sample_i]))
     
     return {
+        "input_ids" : [torch.tensor(a, dtype=torch.long) for a in tokenized["input_ids"]],
+        "tags" : [torch.tensor(a, dtype=torch.long) for a in batch_tags]
+    }
+
+def dataset_map_raw2ner(dataset : DatasetDict, tokenizer) -> Tuple[DatasetDict, list[str]]:
+    columns = ["input_ids", "tags"]
+    ds = dataset.map(lambda x : dataset_map_raw2ner_kernel(tokenizer, x), batched=True)
+    ds.set_format(type='torch', columns=columns)
+    return ds, columns
+
+# def dataset_map_raw2ner_padded(tokenizer, examples):
+#     tokenized = tokenizer.batch_encode_plus(examples["tokens"], add_special_tokens=True, is_split_into_words=True, 
+#                                             padding='max_length', max_length=512, truncation=True, return_length=True)
+
+#     batch_tags = []
+#     length = []
+#     for sample_i, tags in enumerate(examples["tags"]):
+#         wids = tokenized.word_ids(sample_i)
+#         real_tags = []
+#         for wid in wids:
+#             if wid is None:
+#                 real_tags.append(-100)  #Ignore index for pytorch
+#             else:
+#                 real_tags.append(tags[wid])
+#         batch_tags.append(real_tags)
+#         length.append(sum(tokenized["attention_mask"][sample_i]))
+    
+#     return {
+#         "input_ids" : tokenized["input_ids"],
+#         "attention_mask" : tokenized["attention_mask"],
+#         "length" : length,
+#         "tags" : batch_tags
+#     }
+
+def dataset_map_raw2prompt(tokenizer, tag_names, examples):
+    tokenized = tokenizer.batch_encode_plus(examples["tokens"], add_special_tokens=True, is_split_into_words=True, 
+                                            padding='max_length', max_length=512, truncation=True, return_length=True)
+
+    prompts = copy.deepcopy(tokenized["input_ids"])
+    #batch_encode_plus is fast
+
+    length = []
+    mapped_poses = []
+    mapped_tags = []
+    for sample_i, tags in enumerate(examples["tags"]):
+        wids = tokenized.word_ids(sample_i)
+       # texts = tokenized["input_ids"][sample_i]
+        real_len = sum(tokenized["attention_mask"][sample_i])
+        mapped_pos = []
+        mapped_tag = []
+        j = 0
+       # pdb.set_trace()
+        for wid in wids:
+            if wid != None:
+                tag = tag_names[tags[wid]]
+                if tag != 'O':
+                    mapped_pos.append(j)    #record where to map to labelword
+                    mapped_tag.append(tag)  #record the labelword
+            j += 1
+       # pdb.set_trace()
+       # batch_tags.append(real_tags)
+        length.append(real_len)
+        mapped_poses.append(mapped_pos)
+        mapped_tags.append(mapped_tag)
+    
+    tokenized3 = tokenizer.batch_encode_plus(mapped_tags, add_special_tokens=False, is_split_into_words=True, padding=False, truncation=False,
+                                                        return_attention_mask=False, return_token_type_ids=False)
+    #pdb.set_trace()
+
+    for sample_i, mapped in enumerate(mapped_poses):
+        for j, pos in enumerate(mapped):
+            prompts[sample_i][pos] = tokenized3["input_ids"][sample_i][j]
+    
+  #  pdb.set_trace()
+    return {
         "input_ids" : tokenized["input_ids"],
         "attention_mask" : tokenized["attention_mask"],
         "length" : length,
-        "tags" : batch_tags
+        "tags" : prompts
     }
+
     
 class NERDatasetsConfigs:
     with open(f"{get_base_dirname()}/assets/ner_datasets_configs.json") as f:
@@ -328,5 +428,7 @@ def auto_create_model(config : Configs, tokenizer):
     elif config.model_name == "BERT-BiLSTM-Linear-CRF":
         return NER_BERT_BiLSTM_Linear_CRF(auto_get_bert_name_or_path(config), len(auto_get_tag_names(config)), config.lstm_layers, config.lstm_hidden_size,
                             config.dropout_ratio)
+    elif config.model_name == "BERT-Prompt":
+        return NER_BERT_Prompt(f"{auto_get_bert_name_or_path(config)}-{config.dataset_name}-prompt", auto_get_tag_names(config))
     else:
         raise RuntimeError(f"Can't get model {config}")

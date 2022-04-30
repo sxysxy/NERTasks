@@ -1,3 +1,9 @@
+#-*- coding:utf-8
+# Author: 石响宇(18281273@bjtu.edu.cn) 
+# License: LGPL-v3
+# main
+
+
 import random
 from transformers import set_seed
 from myutils import Configs, auto_create_model, auto_get_dataset, auto_get_tag_names, auto_get_tokenizer, dataset_map_raw2ner, get_ner_evaluation
@@ -7,6 +13,10 @@ import torch
 from torch.utils.data import DataLoader
 import torch.nn.functional as F
 import numpy as np
+import torch.optim as optim
+import os
+from datetime import datetime
+import ujson as json
 
 from ner_models import INERModel
 
@@ -22,16 +32,17 @@ def main():
     
     tokenizer = auto_get_tokenizer(config)
     model : INERModel = auto_create_model(config, tokenizer).cuda()
-    ner_dataset = raw_dataset.map(lambda x : dataset_map_raw2ner(tokenizer, x), batched=True)
-    ner_dataset.set_format('torch', columns=NERTrainer.NER_DATA_COLUMNS)
+    ner_dataset, columns = dataset_map_raw2ner(raw_dataset, tokenizer)
 
-    optimizer = AdamW(model.parameters(), lr=config.ner_lr, weight_decay=config.ner_weight_decay)
+    #optimizer = AdamW(model.parameters(), lr=config.ner_lr, weight_decay=config.ner_weight_decay)
+    optimizer = optim.Adam(model.parameters(), lr=config.ner_lr)
     trainer = NERTrainer(model, 
                         optimizer=optimizer, 
                         warmup_ratio=config.warmup_ratio,
                         label_smooth_factor=config.label_smooth_factor,
                         clip_grad_norm=config.clip_grad_norm,
-                        grad_acc=config.grad_acc)
+                        grad_acc=config.grad_acc, 
+                        data_columns=columns)
     tag_names = auto_get_tag_names(config)
     metric_eval = get_ner_evaluation()
     
@@ -41,15 +52,12 @@ def main():
             y_pred = []
             y_true = []
             for batch in test_loader:
-                batch_gpu = {
-                    "input_ids" : batch["input_ids"].cuda(),
-                    "attention_mask" : batch["attention_mask"].cuda(),
-                    "tags" : batch["tags"].cuda(),
-                    "length" : batch["length"].cuda()
-                }
+                batch_gpu = {}
+                for col in columns:
+                    batch_gpu[col] = batch[col].cuda()
                 decoded = model.decode(**batch_gpu)     #[batch_size, seq_length]
                 y_pred.append(decoded)
-                y_true.append(batch["tags"])
+                y_true.append(batch["tags"].view(-1))
 
             if isinstance(y_pred[0], torch.Tensor):
                 y_pred = [p.contiguous().view(-1) for p in y_pred]
@@ -59,7 +67,7 @@ def main():
             else:
                 raise RuntimeError("Unkown decoded type")
 
-            y_true = torch.cat(y_true).detach().cpu()
+           # y_true = torch.cat(y_true).detach().cpu()
 
             true_predictions = [
                 [tag_names[p] for (p, l) in zip(prediction, label) if l != -100]
@@ -77,7 +85,13 @@ def main():
             print(metrics_data)
             return metrics_data
         
-    trainer.train(config.ner_epoches, DataLoader(ner_dataset["train"], batch_size=config.batch_size, pin_memory=True), eval_function)
+    all_metrics = trainer.train(config.ner_epoches, DataLoader(ner_dataset["train"], batch_size=config.batch_size, pin_memory=True), eval_function)
+    all_metrics["config"] = config.__dict__
+    os.makedirs("results", exist_ok=True, mode=0o755)
+
+    now = datetime.now()
+    with open(f"results/{config.dataset_name}-{config.model_name}-{str(now.date())}-{now.hour}-{now.minute}-{now.second}.json", "w") as f:
+        json.dump(all_metrics, f, indent=4)
     
 
 if __name__ == "__main__":

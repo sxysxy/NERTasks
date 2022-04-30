@@ -1,5 +1,7 @@
 assets/raw_datasets
 assets/pretrained_models
+results
+run_*.sh
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
