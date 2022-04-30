@@ -1,0 +1,19 @@
+{
+    "conll2003" : {
+        "default_bert" : "bert-base-uncased",
+        "tag_names" : ["B-MISC", "I-ORG", "B-PER", "I-LOC", "B-LOC", "I-MISC", "B-ORG", "O", "I-PER"]
+    },
+
+    "ontonotes5" : {
+        "default_bert" : "bert-base-chinese",
+        "tag_names" : ["M-PERSON", "E-GPE", "B-GPE", "E-CARDINAL", "E-EVENT", "B-LOC", "E-PERSON", "M-FAC", 
+            "B-CARDINAL", "M-NORP", "M-QUANTITY", "E-PERCENT", "S-PRODUCT", "M-ORG", "S-WORK_OF_ART", 
+            "M-ORDINAL", "E-LAW", "O", "M-GPE", "B-PERCENT", "E-DATE", "B-EVENT", "E-PRODUCT", "E-LANGUAGE",
+            "M-EVENT", "B-LAW", "B-DATE", "E-LOC", "S-MONEY", "M-MONEY", "E-MONEY", "B-LANGUAGE", "B-PRODUCT", 
+            "S-LANGUAGE", "M-LOC", "B-NORP", "M-LANGUAGE", "S-ORDINAL", "S-DATE", "B-TIME", "B-ORDINAL", 
+            "S-ORG", "E-TIME", "M-CARDINAL", "B-MONEY", "M-LAW", "S-NORP", "E-ORDINAL", "M-WORK_OF_ART", 
+            "S-FAC", "E-QUANTITY", "S-TIME", "S-LAW", "E-WORK_OF_ART", "S-CARDINAL", "E-FAC", "M-PERCENT", 
+            "S-GPE", "B-PERSON", "S-LOC", "S-QUANTITY", "M-DATE", "E-ORG", "B-WORK_OF_ART", "M-PRODUCT", 
+            "B-QUANTITY", "E-NORP", "M-TIME", "B-ORG", "B-FAC", "S-PERSON"]
+    }
+}

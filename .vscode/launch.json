@@ -6,6 +6,29 @@
             "request": "launch",
             "program": "test_unit.py",
             "console": "integratedTerminal",
+        },
+        {
+            "name" : "BuildTokenizers",
+            "type" : "python",
+            "request": "launch",
+            "program": "build_tokenizers.py",
+            "console": "integratedTerminal"
+        },
+        {
+            "name" : "Main",
+            "type": "python",
+            "request": "launch",
+            "program": "main.py",
+            "args": [
+                "--dataset", "conll2003",
+                "--model", "BERT-BiLSTM-Linear-CRF",
+                "--clip_grad_norm", "-1",
+                "--warmup_ratio", "-1",
+                "--label_smooth_factor", "-1",
+                "--ner_lr", "0.001",
+                "--ner_epoches", "40"
+            ]
         }
     ]
+
 }

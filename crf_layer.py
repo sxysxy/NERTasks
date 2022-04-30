@@ -35,6 +35,7 @@ class CRFLayer(nn.Module):
         self.trans.data[self.start_tag_id, :] = -10000.0    #任意标签转移到START_TAG，分数-10000
         self.trans.data[:, self.end_tag_id] = -10000.0      #从END_TAG转移到任意标签，分数-10000
         self.tag_size = tag_size
+        self.real_tag_size = self.tag_size + 2
 
     #计算分子exp(s(X, y))的log，其实就是s(X, y) = trans + emit
     def log_exp_score(self, X : torch.Tensor, y : torch.Tensor):
@@ -53,12 +54,12 @@ class CRFLayer(nn.Module):
         '''
         X : [L, tag_size], lstm_linear的输出
         '''
-        sum_score = torch.full((1, self.tag_size), -10000.0).to(X.device)
+        sum_score = torch.full((1, self.real_tag_size), -10000.0).to(X.device)
         sum_score[0][self.start_tag_id] = 0
         #原版是 https://pytorch.org/tutorials/beginner/nlp/advanced_tutorial.html?highlight=crf
         #这里我写的是我优化的版本，更短更快
         for emit in X:
-            score = sum_score + self.trans + emit.unsqueeze(0).repeat(self.tag_size, 1).transpose(0, 1)
+            score = sum_score + self.trans + emit.unsqueeze(0).repeat(self.real_tag_size, 1).transpose(0, 1)
             sum_score = batch_log_sum_exp(score).view(1, -1)
         sum_score += self.trans[self.end_tag_id]
         return batch_log_sum_exp(sum_score)[0]
@@ -71,7 +72,7 @@ class CRFLayer(nn.Module):
     def decode(self, X : torch.Tensor) -> list[int]:
         with torch.no_grad():
             stack = []
-            sum_score = torch.full((1, self.tag_size), -10000.0).to(X.device)
+            sum_score = torch.full((1, self.real_tag_size), -10000.0).to(X.device)
             sum_score[0][self.start_tag_id] = 0
             #原版是 https://pytorch.org/tutorials/beginner/nlp/advanced_tutorial.html?highlight=crf
             #这里我写的是我优化的版本，更短更快

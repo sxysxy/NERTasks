@@ -1,6 +1,7 @@
 ```
 assets
       /README.md
+      /ner_datasets.json
       /raw_datasets
                    /CoNLL2003_NER
                                  /train

@@ -3,10 +3,16 @@
 # License: LGPL-v3
 # 一些通用的东西
 
-from unicodedata import name
 from datasets import load_dataset, load_metric
 import os
+import sys
 import argparse
+import pdb
+
+from transformers import AutoTokenizer, AdamW
+from ner_models import NER_BERT_BiLSTM_Linear, NER_BERT_BiLSTM_Linear_CRF, NER_BERT_Linear, NER_BiLSTM_Linear, NER_BiLSTM_Linear_CRF
+import pickle
+import ujson as json
 
 class Configs:
     '''
@@ -15,49 +21,82 @@ class Configs:
     def __init__(self, namespec):
         self.dataset_name : str = namespec.dataset
         self.ner_epoches : int = namespec.ner_epoches
-        self.warmup_ratio : float = namespec.warnmup_ratio
+        self.warmup_ratio : float = namespec.warmup_ratio if namespec.warmup_ratio > 0 else None
+        self.grad_acc : int = namespec.grad_acc
+        self.batch_size : int = namespec.batch_size
+        self.clip_grad_norm : float = namespec.clip_grad_norm if namespec.clip_grad_norm > 0 else None
         self.ner_lr : float = namespec.ner_lr
-        self.ner_weight_decay : float = namespec.ner_weight_decay
-        self.use_bert : bool = namespec.use_bert
+        self.ner_weight_decay : float = namespec.ner_weight_decay 
         self.model_name : str = namespec.model_name
         self.bert_name_or_path : str = namespec.bert_name_or_path
-        self.label_smooth_factor : float = namespec.label_smooth_factor
+        self.label_smooth_factor : float = namespec.label_smooth_factor if namespec.label_smooth_factor > 0 else None
         self.dropout_ratio : float = namespec.dropout_ratio
         self.lstm_layers : float = namespec.lstm_layers
         self.lstm_hidden_size : float = namespec.lstm_hidden_size
         self.embedding_size : float = namespec.embedding_size
         self.random_seed : float = namespec.random_seed
+        self.few_shot : float = namespec.few_shot
+    
+    @classmethod
+    def parse_from(cls, argv):
+        ps = argparse.ArgumentParser()
+        ps.add_argument("--dataset", choices=['conll2003', 'ontonotes5', 'cmeee'], type=str, required=True, 
+                            help="Choose dataset.")
+        ps.add_argument("--ner_epoches", type=int, default=10, 
+                            help="The number of training epochs on NER Task, default = 10.")
+        ps.add_argument("--warmup_ratio", type=float, default=0.2,
+                            help="Warmup epoches / total epoches, default = 0.2.")
+        ps.add_argument("--grad_acc", type=int, default=8, 
+                            help="Gradient accumulation, default=8.")
+        ps.add_argument("--batch_size", type=int, default=8, 
+                            help="Batch size")
+        ps.add_argument("--clip_grad_norm", type=float, default=1.0,
+                            help="torch.nn.utils.clip_grad_norm_")
+        ps.add_argument("--ner_lr", type=float, default=3e-4,
+                            help="Learning rate, default = 3e-4.")
+        ps.add_argument("--ner_weight_decay", type=float, default=5e-3,
+                            help="L2 penalty, default = 5e-3.")
+        ps.add_argument("--use_bert", action='store_true', 
+                            help="Whether to use bert")
+        ps.add_argument("--model_name", choices=['BiLSTM-Linear', 'BiLSTM-Linear-CRF', 
+                                                 'BERT-BiLSTM-Linear-CRF', 'BERT-Linear', 
+                                                 "BERT-BiLSTM-Linear", "BERT-BiLSTM-Linear-CRF", 
+                                                 "BERT(Prompt)"],
+                            type=str, required=True,
+                            help="For no bert, specific which model to use.")
+        ps.add_argument("--bert_name_or_path", type=str, 
+                            help="Bert name(eg. bert-base-uncased) or path(eg. /local/path/to/bert-base-chinese).")
+        ps.add_argument("--label_smooth_factor", type=float, default=0.1, 
+                            help="Label smooth factor. Default to 0.1.")
+        ps.add_argument("--dropout_ratio", type=float, default=0.2,
+                            help="Dropout ratio on lstm_out/bert_out) when training, default = 0.2.")
+        ps.add_argument("--lstm_layers", type=int, default=1, 
+                            help="The number of layers of bidrectional LSTM, default = 1.")
+        ps.add_argument("--lstm_hidden_size", type=int, default=256,
+                            help="nn.LSTM(hidden_size), default=256")
+        ps.add_argument("--embedding_size", type=int, default=256,
+                            help="nn.Embedding(), default = 256.")
+        ps.add_argument("--random_seed", type=int, default=233,
+                            help="Random seed for transformers.sed_seed, default = 233")   
+        ps.add_argument("--few_shot", type=float, default=None,
+                            help="Few shot: Use len(trainset) * few_shot samples to train. Default to None(Full data).")
+        return ps.parse_args(argv)
     
     cached_config = None
-
     @classmethod
     def parse_from_argv(cls):
         if cls.cached_config:
             return Configs.cached_config
 
-        ps = argparse.ArgumentParser()
-        ps.add_argument("--dataset", choices=['conll2003', 'ontonotes5', 'cmeee'], type=str, required=True, 
-                            help="Choose dataset")
-        ps.add_argument("--ner_epoches", type=int, default=10, 
-                            help="The number of training epochs on NER Task")
-        ps.add_argument("--warmup_ratio", type=float, default=0.2,
-                            help="Warmup epoches / total epoches")
-        ps.add_argument("--ner_lr", type=float, default=3e-4,
-                            help="Learning rate")
-        ps.add_argument("--ner_weight_decay", type=float, default=5e-3,
-                            help="L2 penalty")
-        ps.add_argument("--use_bert", action='store_true', 
-                            help="Whether to use bert")
-        ps.add_argument("--model_name", choices=['BiLSTM-Linear', 'BiLSTM-Linear-CRF'], type=str,
-                            help="For no bert, specific which model to use")
-        
-
-        spec = ps.parse_args()
-        cls.cached_config = Configs(spec)
+        cls.cached_config = Configs(Configs.parse_from(sys.argv[1:]))
         return cls.cached_config
         
     def __getitem__(self, idx):
         return object.__getattribute__(self, idx)
+
+    @property
+    def using_bert(self):
+        return self.model_name in ["BERT-BiLSTM-Linear-CRF", "BERT(Prompt)", "BERT-Linear"]
 
 
 class NERTokenizerFromDataset:
@@ -194,20 +233,40 @@ class NERTokenizerFromDataset:
     def unk_token(self):
         return "[UNK]"
 
-def get_current_full_dirname():
+    @classmethod
+    def from_pretrained(cls, path):
+        with open(os.path.join(path, "tokenizer.bin"), "rb") as f:
+            data = pickle.load(f)
+            tk = NERTokenizerFromDataset()
+            tk.word2idx = data["word2idx"]
+            tk.idx2word = data["idx2word"]
+            return tk
+
+    def save_pretrained(self, path):
+        os.makedirs(path, mode=0o755, exist_ok=True)
+        with open(os.path.join(path, "tokenizer.bin"), "wb") as f:
+            pickle.dump({
+                "word2idx" : self.word2idx,
+                "idx2word" : self.idx2word
+            }, f)    
+
+def get_base_dirname():
     return os.path.split(__file__)[0]
 
-def load_datasets(name):
-    return load_dataset(f"{get_current_full_dirname()}/load_datasets.py", name)
+def get_datasets(name):
+    return load_dataset(f"{get_base_dirname()}/load_datasets.py", name)
 
-os.environ["raw_datasets_path"] = f"{get_current_full_dirname()}/assets/raw_datasets"
+def get_ner_evaluation():
+    return load_metric(f"{get_base_dirname()}/ner_evaluation.py")
 
+os.environ["assets_path"] = f"{get_base_dirname()}/assets"
 
-def dataset_map_raw2ner(tokenizer, add_special_tokens, examples):
-    tokenized = tokenizer.batch_encode_plus(examples["tokens"], add_special_tokens=add_special_tokens, is_split_into_words=True, 
-                                            padding=True, max_length=512, truncation=True, return_length=True)
+def dataset_map_raw2ner(tokenizer, examples):
+    tokenized = tokenizer.batch_encode_plus(examples["tokens"], add_special_tokens=True, is_split_into_words=True, 
+                                            padding='max_length', max_length=512, truncation=True, return_length=True)
 
     batch_tags = []
+    length = []
     for sample_i, tags in enumerate(examples["tags"]):
         wids = tokenized.word_ids(sample_i)
         real_tags = []
@@ -217,10 +276,57 @@ def dataset_map_raw2ner(tokenizer, add_special_tokens, examples):
             else:
                 real_tags.append(tags[wid])
         batch_tags.append(real_tags)
+        length.append(sum(tokenized["attention_mask"][sample_i]))
     
     return {
         "input_ids" : tokenized["input_ids"],
         "attention_mask" : tokenized["attention_mask"],
-        "length" : tokenized["length"],
+        "length" : length,
         "tags" : batch_tags
     }
+    
+class NERDatasetsConfigs:
+    with open(f"{get_base_dirname()}/assets/ner_datasets_configs.json") as f:
+        configs = json.load(f)
+
+def auto_get_tag_names(config : Configs):
+   return NERDatasetsConfigs.configs[config.dataset_name]["tag_names"]
+
+def auto_get_dataset(config : Configs):
+    if config.dataset_name == "conll2003":
+        return get_datasets("conll2003-base")
+    else:
+        raise RuntimeError(f"Can't get dataset {config.datasets}")
+
+def auto_get_bert_name_or_path(config : Configs):
+    bert = config.bert_name_or_path
+    if not bert:
+        bert = NERDatasetsConfigs.configs[config.dataset_name]["default_bert"]
+    if os.path.exists(f"{get_base_dirname()}/assets/pretrained_models/{bert}"):
+        return f"{get_base_dirname()}/assets/pretrained_models/{bert}"
+    else:
+        return bert
+        
+def auto_get_tokenizer(config : Configs):
+    if not config.using_bert:
+        return NERTokenizerFromDataset.from_pretrained(f"{get_base_dirname()}/assets/pretrained_models/tokenizer-{config.dataset_name}")
+    else:
+        return AutoTokenizer.from_pretrained(auto_get_bert_name_or_path(config))
+
+def auto_create_model(config : Configs, tokenizer):
+    if config.model_name == "BiLSTM-Linear":
+        return NER_BiLSTM_Linear(tokenizer.vocab_size, len(auto_get_tag_names(config)), 
+                    config.embedding_size, config.lstm_layers, config.lstm_hidden_size, config.dropout_ratio)
+    elif config.model_name == "BiLSTM-Linear-CRF":
+        return NER_BiLSTM_Linear_CRF(tokenizer.vocab_size, len(auto_get_tag_names(config)),
+                    config.embedding_size, config.lstm_layers, config.lstm_hidden_size, config.dropout_ratio)
+    elif config.model_name == "BERT-Linear":
+        return NER_BERT_Linear(auto_get_bert_name_or_path(config), len(auto_get_tag_names(config)), config.dropout_ratio)
+    elif config.model_name == "BERT-BiLSTM-Linear":
+        return NER_BERT_BiLSTM_Linear(auto_get_bert_name_or_path(config), len(auto_get_tag_names(config)), config.lstm_layers,
+                            config.lstm_hidden_size, config.dropout_ratio)
+    elif config.model_name == "BERT-BiLSTM-Linear-CRF":
+        return NER_BERT_BiLSTM_Linear_CRF(auto_get_bert_name_or_path(config), len(auto_get_tag_names(config)), config.lstm_layers, config.lstm_hidden_size,
+                            config.dropout_ratio)
+    else:
+        raise RuntimeError(f"Can't get model {config}")

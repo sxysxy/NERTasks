@@ -8,8 +8,11 @@ import datasets
 import os
 import numpy as np
 import random
+import ujson as json
 
-datasets_path = os.environ["raw_datasets_path"]
+assets_path = os.environ["assets_path"]
+with open(f"{assets_path}/ner_datasets_configs.json") as f:
+    ner_datasets_configs = json.load(f)
 
 class DatasetConfig(datasets.BuilderConfig):
     def __init__(self, config, **kwargs):
@@ -23,9 +26,16 @@ class AllDatasets(datasets.GeneratorBasedBuilder):
     BUILDER_CONFIGS = [
         DatasetConfig(name = "conll2003-base", 
             config = {
-                "tag_names" : ['B-MISC', 'I-ORG', 'B-PER', 'I-LOC', 'B-LOC', 'I-MISC', 'B-ORG', 'O', 'I-PER'],
-                "train_url" : f"{datasets_path}/CoNLL2003_NER/train",
-                "test_url" : f"{datasets_path}/CoNLL2003_NER/test",
+                "tag_names" : ner_datasets_configs["conll2003"]["tag_names"],
+                "train_url" : f"{assets_path}/raw_datasets/CoNLL2003_NER/train",
+                "test_url" :  f"{assets_path}/raw_datasets/CoNLL2003_NER/test",
+                "data_aug" : None
+            }),
+        DatasetConfig(name = "ontonotes5-base",
+            config = {
+                "tag_names" : ner_datasets_configs["ontonotes5"]["tag_names"],
+                "train_url" : f"{assets_path}/raw_datasets/ontonotes5_ch_ner/ontonotes5.train.bmes",
+                "test_url"  : f"{assets_path}/raw_datasets/ontonotes5_ch_ner/ontonotes5.test.bmes",
                 "data_aug" : None
             }),
     ]

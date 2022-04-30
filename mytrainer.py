@@ -69,6 +69,8 @@ class NERTrainer:
         self.clip_grad_norm = clip_grad_norm
         self.grad_acc = grad_acc if grad_acc else 1
 
+    NER_DATA_COLUMNS = ["input_ids", "attention_mask", "tags", "length"]
+
     def train(self, num_epochs, train_dataloader : DataLoader, eval_function : Callable):
         '''
         num_epochs : 训练轮数
@@ -93,21 +95,22 @@ class NERTrainer:
             grad_acc_cnt = 0
             def optim_step():
                 if self.clip_grad_norm:
-                    torch.nn.utils.clip_grad_norm_(model.parameters(), self.max_grad_norm)
+                    torch.nn.utils.clip_grad_norm_(model.parameters(), self.clip_grad_norm)
                 optimizer.step()
                 optimizer.zero_grad()
-            with tqdm(desc=f"Epoch {epoch_i}", total=len(train_dataloader)) as bar:
+            with tqdm(desc=f"Epoch {epoch_i}", total=len(train_dataloader), unit="ba") as bar:
                 start_time = datetime.now()  
                 for batch in train_dataloader:
                     batch_gpu = {
                         "input_ids" : batch["input_ids"].cuda(),
                         "attention_mask" : batch["attention_mask"].cuda(),
-                        "labels" : batch["labels"].cuda()
+                        "tags" : batch["tags"].cuda(),
+                        "length" : batch["length"].cuda()
                     }
                     if self.label_smoother is None:
                         loss : torch.Tensor = model(**batch_gpu)['loss'].mean() / self.grad_acc
                     else:
-                        loss : torch.Tensor = self.label_smoother(model(**batch_gpu), batch_gpu['labels']) / self.grad_acc
+                        loss : torch.Tensor = self.label_smoother(model(**batch_gpu), batch_gpu['tags']) / self.grad_acc
                     loss.backward()
                     epoch_loss += loss.item()
                     grad_acc_cnt += 1
@@ -120,6 +123,7 @@ class NERTrainer:
                     if lr_sched:
                         lr_sched.step()
                     bar.update(1)
+
                 end_time = datetime.now()
                 dur = end_time - start_time
                 epoch_time = dur.seconds + 1e-6 * dur.microseconds
@@ -130,8 +134,7 @@ class NERTrainer:
 
             if eval_function:
                 model.eval()
-                eval_metrics = eval_function(model)
-                metrics_ep.update(eval_metrics)
+                metrics_ep = eval_function(metrics_ep)
                 model.train()
         
             all_metrics["metrics_each_epoch"].append(metrics_ep)

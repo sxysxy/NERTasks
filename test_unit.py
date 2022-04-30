@@ -33,7 +33,7 @@ def test_loaddataset():
 
     sample_raw = raw_dataset["train"][0]
 
-    ner_dataset = raw_dataset.map(lambda x : dataset_map_raw2ner(tokenizer, True, x), batched=True)
+    ner_dataset = raw_dataset.map(lambda x : dataset_map_raw2ner(tokenizer, x), batched=True)
     ner_dataset.set_format('torch', columns=["input_ids", "attention_mask", "length", "tags"])
     
     loader = DataLoader(ner_dataset["train"], batch_size=4)

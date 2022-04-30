@@ -6,9 +6,11 @@ It implements:
 
 <table>
 <tbody>
-<tr><td rowspan="5">Models</td></tr>
+<tr><td rowspan="7">Models</td></tr>
     <tr><td>BiLSTM-Linear</td></tr>
     <tr><td>BiLSTM-Linear-CRF</td></tr>
+    <tr><td>BERT-Linear</td></tr>
+    <tr><td>BERT-BiLSTM-Linear</td></tr>
     <tr><td>BERT-BiLSTM-Linear-CRF</td></tr>
     <tr><td>BERT(Prompt)</td></tr>
 <tr><td rowspan="4">Datasets</td></tr>
@@ -29,7 +31,7 @@ It implements:
 
 # Requirements:
 
-Linux(Tested)/Windows(Not Tested) with Nvidia GPUs, or MacOS(no GPU acceleration). 
+Linux(Tested)/Windows(Not Tested) with Nvidia GPUs.
 
 # Install dependencies.
 
