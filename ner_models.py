@@ -167,6 +167,19 @@ class NER_BERT_Linear(INERModel):
         logits = self.linear(bert_out)
         return self.return_loss_by_logsoftmax_logits(logits, X["tags"].view(-1)[1:-1] if "tags" in X else None)
 
+class NER_BERT_Linear_CRF(NER_With_CRF):
+    '''
+    Bert-Linear-CRF模型
+    '''
+    def __init__(self, bert_model, tag_size, dropout_ratio) -> None:
+        '''
+        bert_model : bert模型或bert预训练模型的名字/目录
+        tag_size : 标签集大小
+        dropout_ratio : dropout率
+        '''
+        encoder = NER_BERT_Linear(bert_model, tag_size + 2, dropout_ratio)
+        super().__init__(encoder, tag_size)
+
 
 class NER_BERT_BiLSTM_Linear(INERModel):
     def __init__(self, bert_model, tag_size, lstm_layers, lstm_hidden_size, dropout_ratio):

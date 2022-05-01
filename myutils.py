@@ -14,7 +14,11 @@ import pdb
 import copy
 from transformers import AutoTokenizer, AdamW
 from typer import prompt
-from ner_models import NER_BERT_BiLSTM_Linear, NER_BERT_BiLSTM_Linear_CRF, NER_BERT_Linear, NER_BERT_Prompt, NER_BiLSTM_Linear, NER_BiLSTM_Linear_CRF
+from ner_models import (
+    NER_BERT_BiLSTM_Linear, NER_BERT_BiLSTM_Linear_CRF, 
+    NER_BERT_Linear, NER_BERT_Prompt, NER_BiLSTM_Linear, 
+    NER_BiLSTM_Linear_CRF, NER_BERT_Linear_CRF
+)
 import pickle
 import ujson as json
 import torch
@@ -64,7 +68,7 @@ class Configs:
         ps.add_argument("--use_bert", action='store_true', 
                             help="Whether to use bert")
         ps.add_argument("--model_name", choices=['BiLSTM-Linear', 'BiLSTM-Linear-CRF', 
-                                                 'BERT-BiLSTM-Linear-CRF', 'BERT-Linear', 
+                                                 'BERT-BiLSTM-Linear-CRF', 'BERT-Linear', 'BERT-Linear-CRF', 
                                                  "BERT-BiLSTM-Linear",  
                                                  "BERT-Prompt"],
                             type=str, required=True,
@@ -101,7 +105,7 @@ class Configs:
 
     @property
     def using_bert(self):
-        return self.model_name in ["BERT-BiLSTM-Linear-CRF", "BERT-Prompt", "BERT-Linear"]
+        return self.model_name in ["BERT-BiLSTM-Linear-CRF", "BERT-Prompt", "BERT-Linear", "BERT-Linear-CRF"]
 
     @property
     def using_prompt(self):
@@ -422,6 +426,8 @@ def auto_create_model(config : Configs, tokenizer):
                     config.embedding_size, config.lstm_layers, config.lstm_hidden_size, config.dropout_ratio)
     elif config.model_name == "BERT-Linear":
         return NER_BERT_Linear(auto_get_bert_name_or_path(config), len(auto_get_tag_names(config)), config.dropout_ratio)
+    elif config.model_name == "BERT-Linear-CRF":
+        return NER_BERT_Linear_CRF(auto_get_bert_name_or_path(config), len(auto_get_tag_names(config)), config.dropout_ratio)
     elif config.model_name == "BERT-BiLSTM-Linear":
         return NER_BERT_BiLSTM_Linear(auto_get_bert_name_or_path(config), len(auto_get_tag_names(config)), config.lstm_layers,
                             config.lstm_hidden_size, config.dropout_ratio)

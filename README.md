@@ -9,6 +9,10 @@
 ### [&nbsp; 4.1 Hyper Parameters](#4_1)
 ### [&nbsp; 4.2 Model Parameters](#4_2)
 ### [&nbsp; 4.3 Results](#4_3)
+## [5. Acknowledgement And Citations](#5)
+### [&nbsp; 5.1 People And Orgnizations](#5_1)
+### [&nbsp; 5.2 Third-Party Libraries](#5_2)
+### [&nbsp; 5.3 Papers](#5_3) 
 
 <p id="0"> </p>
 
@@ -20,10 +24,11 @@ It implements:
 
 <table>
 <tbody>
-<tr><td rowspan="7">Models</td></tr>
+<tr><td rowspan="8">Models</td></tr>
     <tr><td>BiLSTM-Linear</td></tr>
     <tr><td>BiLSTM-Linear-CRF</td></tr>
     <tr><td>BERT-Linear</td></tr>
+    <tr><td>BERT-Linear-CRF</td></tr>
     <tr><td>BERT-BiLSTM-Linear</td></tr>
     <tr><td>BERT-BiLSTM-Linear-CRF</td></tr>
     <tr><td>BERT(Prompt)</td></tr>
@@ -95,21 +100,22 @@ For some reason(copyright and some other things), I can't directly provide datas
 </thead>
 <tbody>
 <tr><td>BiLSTM-Linear</td>
-        <td rowspan="6">Adam</td>
+        <td rowspan="7">Adam</td>
         <td rowspan="2"> 0.001 </td>
-        <td rowspan="6"> 5e-3 </td>
-        <td rowspan="3"> 0.2 </td>
-        <td rowspan="6"> None </td>
-        <td rowspan="6"> 1 </td>
-        <td rowspan="6"> 32 </td>
-        <td rowspan="6"> 12 </td>
-        <td rowspan="6"> 233 </td></tr>
+        <td rowspan="7"> 5e-3 </td>
+        <td rowspan="2"> 0.2 </td>
+        <td rowspan="7"> None </td>
+        <td rowspan="7"> 1 </td>
+        <td rowspan="7"> 32 </td>
+        <td rowspan="7"> 12 </td>
+        <td rowspan="7"> 233 </td></tr>
     <tr><td>BiLSTM-Linear-CRF</td></tr>
     <tr><td>BERT-Linear</td>
         <td rowspan="5">0.0001</td>
         </tr>
-    <tr><td>BERT-BiLSTM-Linear</td>
-        <td rowspan="4">None</td></tr>
+    <tr><td>BERT-Linear-CRF</td>
+        <td rowspan="5">None</td></tr>
+    <tr><td>BERT-BiLSTM-Linear</td></tr>
     <tr><td>BERT-BiLSTM-Linear-CRF</td></tr>
     <tr><td>BERT(Prompt)</td></tr>
 </tbody>
@@ -137,16 +143,18 @@ For some reason(copyright and some other things), I can't directly provide datas
 <tr>
     <td> Dataset </td>
     <td> Model </td>
-    <td> Overall Span-Based F1 </td>
+    <td> Overall Span-Based Micro F1 </td>
 </tr>
 </thead>
 <tbody>
-<tr><td rowspan="6">CoNLL2003</td><td>BiLSTM-Linear</td>
+<tr><td rowspan="7">CoNLL2003</td><td>BiLSTM-Linear</td>
     <td>0.6617193523515805</td></tr>
 <tr><td>BiLSTM-Linear-CRF</td>
     <td>0.6955084580983861</td></tr>
 <tr><td>BERT-Linear</td>
     <td>0.8985507246376812</td></tr>
+<tr><td>BERT-Linear-CRF</td>
+    <td></td></tr>
 <tr><td>BERT-BiLSTM-Linear</td>
     <td></td></tr>
 <tr><td>BERT-BiLSTM-Linear-CRF</td>
@@ -154,11 +162,13 @@ For some reason(copyright and some other things), I can't directly provide datas
 <tr><td>BERT(Prompt)</td>
     <td></td></tr>
 
-<tr><td rowspan="6">OntoNotes5(Chinese)</td><td>BiLSTM-Linear</td>
+<tr><td rowspan="7">OntoNotes5(Chinese)</td><td>BiLSTM-Linear</td>
     <td></td></tr>
 <tr><td>BiLSTM-Linear-CRF</td>
     <td></td></tr>
 <tr><td>BERT-Linear</td>
+    <td></td></tr>
+<tr><td>BERT-Linear-CRF</td>
     <td></td></tr>
 <tr><td>BERT-BiLSTM-Linear</td>
     <td></td></tr>
@@ -183,6 +193,8 @@ CMeEE is evaluated by official judger: [https://tianchi.aliyun.com/dataset/dataD
     <td></td></tr>
 <tr><td>BERT-Linear</td>
     <td></td></tr>
+<tr><td>BERT-Linear-CRF</td>
+    <td></td></tr>
 <tr><td>BERT-BiLSTM-Linear</td>
     <td></td></tr>
 <tr><td>BERT-BiLSTM-Linear-CRF</td>
@@ -191,3 +203,7 @@ CMeEE is evaluated by official judger: [https://tianchi.aliyun.com/dataset/dataD
     <td></td></tr>
 </tbody>
 </table>
+
+<p id="5"> </p>
+
+# Acknowledgement And Citations

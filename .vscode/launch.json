@@ -34,7 +34,7 @@
                // "--ner_lr", "0.00001",
                // "--clip_grad_norm", "-1",
                 "--warmup_ratio", "-1",
-                "--ner_epoches", "20",
+                "--ner_epoches", "12",
                // "--lstm_layers", "2",
                 "--lstm_layers", "2",
                 "--lstm_hidden_size", "256",
