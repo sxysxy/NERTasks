@@ -33,9 +33,9 @@ class INERModel(nn.Module):
         '''
         raise RuntimeError("You should not come here")
     
-    def return_loss_by_logsoftmax_logits(self, logits, **X):
-        if "tags" in X:
-            loss = F.nll_loss(F.log_softmax(logits, dim=1), X["tags"].view(-1), ignore_index=-100)
+    def return_loss_by_logsoftmax_logits(self, logits, tags):
+        if not tags is None:
+            loss = F.nll_loss(F.log_softmax(logits, dim=1), tags, ignore_index=-100)
         else:
             loss = 0
         return {
@@ -48,7 +48,7 @@ class INERModel(nn.Module):
         Decode by argmax-softmax
         X : { "input_ids" : [batch_size, seq_len] }
         '''
-        logits = self(**X)["logits"][:, 1:-1, :]
+        logits = self(**X)["logits"]
         return torch.argmax(F.softmax(logits, dim=-1), dim=-1).tolist()
 
 
@@ -81,10 +81,10 @@ class NER_BiLSTM_Linear(INERModel):
         X = { "input_ids" : [batch_size, seq_len], "attention_mask" : [batch_size, seq_len], "tags" : [batch_size, seq_len] }
         batch_size should be 1
         '''
-        embed : torch.Tensor = self.embed(X["input_ids"])                   #[1, seq_len, embedding_size]
-        lstm_out, _ = self.lstm(embed)                                      #[1, seq_len, lstm_hidden_size * 2]
-        logits = self.linear(self.dropout(lstm_out.squeeze(0)))             #[seq_len, tag_size]
-        return self.return_loss_by_logsoftmax_logits(logits, **X)
+        embed : torch.Tensor = self.embed(X["input_ids"])                       #[1, seq_len, embedding_size]
+        lstm_out, _ = self.lstm(embed)                                          #[1, seq_len, lstm_hidden_size * 2]
+        logits = self.linear(self.dropout(lstm_out.squeeze(0)[1:-1, :]))        #[seq_len, tag_size]
+        return self.return_loss_by_logsoftmax_logits(logits, X["tags"].view(-1)[1:-1] if "tags" in X else None)
     
         
 class NER_With_CRF(INERModel):
@@ -105,7 +105,7 @@ class NER_With_CRF(INERModel):
         if "tags" in X:
             tags = X.pop("tags")
             logits = self.encoder(**X)["logits"]
-            loss = self.crf.nll_loss(logits.squeeze(0)[1:-1], tags.squeeze(0)[1:-1])
+            loss = self.crf.nll_loss(logits.squeeze(0), tags.squeeze(0)[1:-1])
             X["tags"] = tags
             return {
                 "logits" : logits,
@@ -162,10 +162,10 @@ class NER_BERT_Linear(INERModel):
         '''
         X : { "input_ids" : [batch_size, seq_len], "tags" : [batch_size, seq_len] }
         '''
-        bert_out : torch.Tensor = self.bert(input_ids=X["input_ids"])[0].squeeze(0)   #[seq_len, hidden_size]
+        bert_out : torch.Tensor = self.bert(input_ids=X["input_ids"])[0][:,1:-1,:].squeeze(0)   #[seq_len, hidden_size]
         bert_out = self.dropout(bert_out)
         logits = self.linear(bert_out)
-        return self.return_loss_by_logsoftmax_logits(logits, **X)
+        return self.return_loss_by_logsoftmax_logits(logits, X["tags"].view(-1)[1:-1] if "tags" in X else None)
 
 
 class NER_BERT_BiLSTM_Linear(INERModel):
@@ -196,11 +196,12 @@ class NER_BERT_BiLSTM_Linear(INERModel):
     def forward(self, **X):
         '''
         X : { "input_ids" : [batch_size, seq_len], "tags" : [batch_size, seq_len] }
+        batch_size = 1
         '''
         bert_out = self.bert(input_ids=X["input_ids"])[0]              #[batch_size, seq_len, bert_hidden_size]
         lstm_out, _ = self.lstm(bert_out)                              #[batch_size, seq_len, lstm_hidden_size]
-        logits = self.linear(self.dropout(lstm_out.squeeze(0)))        #[seq_len, tag_size]
-        return self.return_loss_by_logsoftmax_logits(logits, **X)
+        logits = self.linear(self.dropout(lstm_out.squeeze(0)[1:-1]))  #[seq_len, tag_size]
+        return self.return_loss_by_logsoftmax_logits(logits, X["tags"].view(-1)[1:-1] if "tags" in X else None)
 
 
 class NER_BERT_BiLSTM_Linear_CRF(NER_With_CRF):

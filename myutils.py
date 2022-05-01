@@ -65,7 +65,7 @@ class Configs:
                             help="Whether to use bert")
         ps.add_argument("--model_name", choices=['BiLSTM-Linear', 'BiLSTM-Linear-CRF', 
                                                  'BERT-BiLSTM-Linear-CRF', 'BERT-Linear', 
-                                                 "BERT-BiLSTM-Linear", "BERT-BiLSTM-Linear-CRF", 
+                                                 "BERT-BiLSTM-Linear",  
                                                  "BERT-Prompt"],
                             type=str, required=True,
                             help="For no bert, specific which model to use.")
@@ -75,7 +75,7 @@ class Configs:
                             help="Label smooth factor. Default to 0.1.")
         ps.add_argument("--dropout_ratio", type=float, default=0.2,
                             help="Dropout ratio on lstm_out/bert_out) when training, default = 0.2.")
-        ps.add_argument("--lstm_layers", type=int, default=1, 
+        ps.add_argument("--lstm_layers", type=int, default=2, 
                             help="The number of layers of bidrectional LSTM, default = 1.")
         ps.add_argument("--lstm_hidden_size", type=int, default=256,
                             help="nn.LSTM(hidden_size), default=256")

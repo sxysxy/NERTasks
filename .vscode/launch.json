@@ -23,17 +23,18 @@
             "args": [
                 "--dataset", "conll2003",
                // "--model", "BERT-Prompt",
-               // "--model", "BiLSTM-Linear-CRF",
+                "--model", "BERT-BiLSTM-Linear-CRF",
                // "--model", "BERT-Linear",
                // "--model", "BERT-BiLSTM-Linear",
-                "--model", "BERT-BiLSTM-Linear-CRF",
+               // "--model", "BERT-BiLSTM-Linear-CRF",
+               // "--model", "BiLSTM-Linear",
                 "--label_smooth_factor", "-1",
-               // "--ner_lr", "0.001",
+              //  "--ner_lr", "0.001",
                 "--ner_lr", "0.0001",
+               // "--ner_lr", "0.00001",
                 "--ner_epoches", "20",
-                "--embedding_size", "100",
                 "--lstm_layers", "2",
-                "--lstm_hidden_size", "512",
+                "--lstm_hidden_size", "256",
                 "--batch_size", "1",
                 "--grad_acc", "32"
             ]

@@ -5,6 +5,7 @@
 
 
 import random
+from h11 import Data
 from transformers import set_seed
 from myutils import Configs, auto_create_model, auto_get_dataset, auto_get_tag_names, auto_get_tokenizer, dataset_map_raw2ner, get_ner_evaluation
 from mytrainer import NERTrainer
@@ -17,7 +18,6 @@ import torch.optim as optim
 import os
 from datetime import datetime
 import ujson as json
-
 from ner_models import INERModel
 
 def main():
@@ -34,8 +34,8 @@ def main():
     model : INERModel = auto_create_model(config, tokenizer).cuda()
     ner_dataset, columns = dataset_map_raw2ner(raw_dataset, tokenizer)
 
-    #optimizer = AdamW(model.parameters(), lr=config.ner_lr, weight_decay=config.ner_weight_decay)
-    optimizer = optim.Adam(model.parameters(), lr=config.ner_lr)
+    optimizer = AdamW(model.parameters(), lr=config.ner_lr, weight_decay=config.ner_weight_decay)
+    #optimizer = optim.Adam(model.parameters(), lr=config.ner_lr)
     trainer = NERTrainer(model, 
                         optimizer=optimizer, 
                         warmup_ratio=config.warmup_ratio,
@@ -57,7 +57,7 @@ def main():
                     batch_gpu[col] = batch[col].cuda()
                 decoded = model.decode(**batch_gpu)     #[batch_size, seq_length]
                 y_pred.append(decoded)
-                y_true.append(batch["tags"].view(-1))
+                y_true.append(batch["tags"].view(-1)[1:-1])
 
             if isinstance(y_pred[0], torch.Tensor):
                 y_pred = [p.contiguous().view(-1) for p in y_pred]
@@ -87,6 +87,11 @@ def main():
         
     all_metrics = trainer.train(config.ner_epoches, DataLoader(ner_dataset["train"], batch_size=config.batch_size, pin_memory=True), eval_function)
     all_metrics["config"] = config.__dict__
+    best_f1 = 0
+    for m in all_metrics["metrics_each_epoch"]:
+        if m["f1"] > best_f1:
+            best_f1 = m["f1"]
+    all_metrics["best_f1"] = best_f1
     os.makedirs("results", exist_ok=True, mode=0o755)
 
     now = datetime.now()
