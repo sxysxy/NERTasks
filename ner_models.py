@@ -180,16 +180,11 @@ class NER_BERT_Linear_CRF(NER_With_CRF):
         encoder = NER_BERT_Linear(bert_model, tag_size + 2, dropout_ratio)
         super().__init__(encoder, tag_size)
 
-
 class NER_BERT_BiLSTM_Linear(INERModel):
+    '''
+    BERT-BiLSTM-Linear
+    '''
     def __init__(self, bert_model, tag_size, lstm_layers, lstm_hidden_size, dropout_ratio):
-        '''
-        bert_model : bert模型或者bert_name/path
-        tag_size : 标签集大小
-        lstm_layers : lstm层数
-        lstm_hidden_size : lstm隐藏层大小
-        dropout_ratio : dropout率
-        '''
         super().__init__()
         if isinstance(bert_model, nn.Module):
             self.bert = bert_model
@@ -207,17 +202,16 @@ class NER_BERT_BiLSTM_Linear(INERModel):
         self.tag_size = tag_size
     
     def forward(self, **X):
-        '''
-        X : { "input_ids" : [batch_size, seq_len], "tags" : [batch_size, seq_len] }
-        batch_size = 1
-        '''
         bert_out = self.bert(input_ids=X["input_ids"])[0]                 #[batch_size, seq_len, bert_hidden_size]
         lstm_out, _ = self.lstm(bert_out)                                 #[batch_size, seq_len, lstm_hidden_size]
-        logits = self.linear(self.dropout(lstm_out[:, 1:-1, :]))  #[seq_len, tag_size]
+        logits = self.linear(self.dropout(lstm_out[:, 1:-1, :]))          #[seq_len, tag_size]
         return self.return_loss_by_logsoftmax_logits(logits.squeeze(0), X["tags"].view(-1)[1:-1] if "tags" in X else None)
 
-
+        
 class NER_BERT_BiLSTM_Linear_CRF(NER_With_CRF):
+    '''
+    BERT-BiLSTM-Linear-CRF
+    '''
     def __init__(self, bert_model, tag_size, lstm_layers, lstm_hidden_size, dropout_ratio):
         '''
         bert_model : bert模型或者bert_name/path

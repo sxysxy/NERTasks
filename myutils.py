@@ -24,6 +24,9 @@ import ujson as json
 import torch
 
 class Configs:
+    OVERALL_MICRO = 0
+    OVERALL_MACRO = 1
+
     '''
     配置
     '''
@@ -45,6 +48,10 @@ class Configs:
         self.embedding_size : float = namespec.embedding_size
         self.random_seed : float = namespec.random_seed
         self.few_shot : float = namespec.few_shot
+        self.f1 = {
+            "overall_micro" : Configs.OVERALL_MICRO,
+            "overall_macro" : Configs.OVERALL_MACRO
+        }[namespec.f1]
     
     @classmethod
     def parse_from(cls, argv):
@@ -65,8 +72,6 @@ class Configs:
                             help="Learning rate, default = 3e-4.")
         ps.add_argument("--ner_weight_decay", type=float, default=5e-3,
                             help="L2 penalty, default = 5e-3.")
-        ps.add_argument("--use_bert", action='store_true', 
-                            help="Whether to use bert")
         ps.add_argument("--model_name", choices=['BiLSTM-Linear', 'BiLSTM-Linear-CRF', 
                                                  'BERT-BiLSTM-Linear-CRF', 'BERT-Linear', 'BERT-Linear-CRF', 
                                                  "BERT-BiLSTM-Linear",  
@@ -89,6 +94,8 @@ class Configs:
                             help="Random seed for transformers.sed_seed, default = 233")   
         ps.add_argument("--few_shot", type=float, default=None,
                             help="Few shot: Use len(trainset) * few_shot samples to train. Default to None(Full data).")
+        ps.add_argument("--f1", type=str, choices=["overall_micro", "overall_macro"], default="overall_micro",
+                            help="Micro F1 or Macro F1?")
         return ps.parse_args(argv)
     
     cached_config = None
@@ -105,7 +112,7 @@ class Configs:
 
     @property
     def using_bert(self):
-        return self.model_name in ["BERT-BiLSTM-Linear-CRF", "BERT-Prompt", "BERT-Linear", "BERT-Linear-CRF"]
+        return self.model_name in ["BERT-BiLSTM-Linear-CRF", "BERT-Prompt", "BERT-Linear", "BERT-Linear-CRF", "BERT-BiLSTM-Linear"]
 
     @property
     def using_prompt(self):
@@ -118,7 +125,7 @@ class Configs:
          "grad_acc", "batch_size", "clip_grad_norm", "ner_lr", "ner_weight_decay",
          "model_name", "bert_name_or_path", "label_smooth_factor", "dropout_ratio",
          "lstm_layers", "lstm_hidden_size", "embedding_size", "random_seed", 
-         "few_shot"]:
+         "few_shot", "f1"]:
             d[k] = self[k]
         return d
 
@@ -399,8 +406,10 @@ def auto_get_tag_names(config : Configs):
 def auto_get_dataset(config : Configs):
     if config.dataset_name == "conll2003":
         return get_datasets("conll2003-base")
+    elif config.dataset_name == "ontonotes5":
+        return get_datasets("ontonotes5-base")
     else:
-        raise RuntimeError(f"Can't get dataset {config.datasets}")
+        raise RuntimeError(f"Can't get dataset {config.dataset_name}")
 
 def auto_get_bert_name_or_path(config : Configs):
     bert = config.bert_name_or_path

@@ -9,6 +9,8 @@ import os
 import numpy as np
 import random
 import ujson as json
+import re
+import pdb
 
 assets_path = os.environ["assets_path"]
 with open(f"{assets_path}/ner_datasets_configs.json") as f:
@@ -83,6 +85,8 @@ class AllDatasets(datasets.GeneratorBasedBuilder):
             return [train_sp]
 
     def _generate_examples(self, **args):
+        origin_texts = []
+        origin_tags = []
         if self.config.name.startswith("conll2003"):
             print("Dataset: Loading conll2003")
             with open(f"{args['filename']}/seq.in") as f:
@@ -90,8 +94,37 @@ class AllDatasets(datasets.GeneratorBasedBuilder):
             with open(f"{args['filename']}/seq.out") as f:
                 origin_tags = list(map(lambda x : x.strip().split(' '), filter(lambda t : len(t.strip()) > 0, f.readlines())))
            
+        elif self.config.name.startswith("ontonotes5"):
+            print("Dataset: Loading Ontonotes5")
+            with open(args["filename"], "r") as f:
+                origin_texts = []
+                origin_tags = []
+                text = []
+                tag = []
+                for line in f.readlines():  
+                    a = line.strip().split(' ')
+                    if len(a) != 2:
+                        if len(text) > 0:
+                            origin_texts.append(text)
+                            origin_tags.append(tag)
+                        text = []
+                        tag = []
+                    else:
+                        text.append(a[0])
+                        tag.append(a[1])
+                if len(text) > 0:
+                    origin_texts.append(text)
+                    origin_tags.append(tag)
+               # pdb.set_trace()
+                # pairs = filter(lambda x : len(x) == 2, map(lambda x : x.strip().split(), f.readlines()))
+                # tokens = []
+                # labels = []
+                # for pair in pairs:
+                #     tokens.append(pair[0])
+                #     labels.append(pair[1])
+                # assert(type(tokens[0]) == str)  #确保与原版的格式相同
         else:
-            pass
+            raise RuntimeError(f"Unresolved dataset {self.config.name}")
         
         if self.config.name.endswith("base"):
             s = 0

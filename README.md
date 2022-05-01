@@ -1,7 +1,7 @@
 # NERTasks
 
 # Contents
-## [Waht's It?](#0)
+## [What's It?](#0)
 ## [1. Requrements](#1)
 ## [2. Install Dependencies](#2)
 ## [3. How To Prepare Datasets](#3)
@@ -23,26 +23,30 @@
 It implements:
 
 <table>
+<thead>
+<tr><td></td><td>Item</td><td>Source</td></tr>
+</thred>
 <tbody>
-<tr><td rowspan="8">Models</td></tr>
-    <tr><td>BiLSTM-Linear</td></tr>
-    <tr><td>BiLSTM-Linear-CRF</td></tr>
-    <tr><td>BERT-Linear</td></tr>
-    <tr><td>BERT-Linear-CRF</td></tr>
-    <tr><td>BERT-BiLSTM-Linear</td></tr>
-    <tr><td>BERT-BiLSTM-Linear-CRF</td></tr>
-    <tr><td>BERT(Prompt)</td></tr>
+<tr><td rowspan="8">Models</td><td></td></tr>
+    <tr><td>BiLSTM-Linear</td><td></td></tr>
+    <tr><td>BiLSTM-Linear-CRF</td><td><a href="https://arxiv.org/abs/1603.01360">Neural Architectures for Named Entity Recognition</a></td></tr>
+    <tr><td>BERT-Linear</td><td></td></tr>
+    <tr><td>BERT-Linear-CRF</td><td></td></tr>
+    <tr><td>BERT-BiLSTM-Linear</td><td></td></tr>
+    <tr><td>BERT-BiLSTM-Linear-CRF</td><td></td></tr>
+    <tr><td>BERT(Prompt)</td><td><a href="https://arxiv.org/abs/2109.13532">Template-free Prompt Tuning for Few-shot NER</a></td></tr>
 <tr><td rowspan="4">Datasets</td></tr>
-    <tr><td>CoNLL2003</td></tr>
-    <tr><td>OntoNotes5</td></tr>
-    <tr><td>CMeEE</td></tr>
+    <tr><td>CoNLL2003</td><td><a href="https://github.com/yuanxiaosc/BERT-for-Sequence-Labeling-and-Text-Classification/tree/master/data/CoNLL2003_NER">
+yuanxiaosc/BERT-for-Sequence-Labeling-and-Text-Classification</a></td></tr>
+    <tr><td>OntoNotes5</td><td><a href="https://catalog.ldc.upenn.edu/LDC2013T19">LDC2013T19</a></td></tr>
+    <tr><td>CMeEE</td><td><a href="https://tianchi.aliyun.com/dataset/dataDetail?dataId=95414">CBLUE</a></td></tr>
 <tr><td rowspan="4">Traning Trick</td></tr>
-    <tr><td>Gradient Accumulation</td></tr>
-    <tr><td>Learning Rate Warmup</td></tr>
-    <tr><td>Label Smooth</td></tr>
+    <tr><td>Gradient Accumulation</td><td></td></tr>
+    <tr><td>Learning Rate Warmup</td><td></td></tr>
+    <tr><td>Label Smooth</td><td></td></tr>
 <tr><td rowspan="3">Misc</td></tr>
-    <tr><td>Tokenizer from datasets</td></tr>
-    <tr><td>NER Metrics</td></tr>
+    <tr><td>Tokenizer from datasets</td><td></td></tr>
+    <tr><td>NER Metrics</td><td><a href="https://github.com/chakki-works/seqeval">seqeval: A Python framework for sequence labeling evaluation</a></td></tr>
 </tbody>
 </table>
 
@@ -103,7 +107,7 @@ For some reason(copyright and some other things), I can't directly provide datas
         <td rowspan="7">Adam</td>
         <td rowspan="2"> 0.001 </td>
         <td rowspan="7"> 5e-3 </td>
-        <td rowspan="2"> 0.2 </td>
+        <td rowspan="7"> None </td>
         <td rowspan="7"> None </td>
         <td rowspan="7"> 1 </td>
         <td rowspan="7"> 32 </td>
@@ -113,8 +117,7 @@ For some reason(copyright and some other things), I can't directly provide datas
     <tr><td>BERT-Linear</td>
         <td rowspan="5">0.0001</td>
         </tr>
-    <tr><td>BERT-Linear-CRF</td>
-        <td rowspan="5">None</td></tr>
+    <tr><td>BERT-Linear-CRF</td></tr>
     <tr><td>BERT-BiLSTM-Linear</td></tr>
     <tr><td>BERT-BiLSTM-Linear-CRF</td></tr>
     <tr><td>BERT(Prompt)</td></tr>
@@ -148,17 +151,17 @@ For some reason(copyright and some other things), I can't directly provide datas
 </thead>
 <tbody>
 <tr><td rowspan="7">CoNLL2003</td><td>BiLSTM-Linear</td>
-    <td>0.6617193523515805</td></tr>
+    <td>0.6517005491858561</td></tr>
 <tr><td>BiLSTM-Linear-CRF</td>
-    <td>0.6955084580983861</td></tr>
+    <td>0.6949365863103882</td></tr>
 <tr><td>BERT-Linear</td>
-    <td>0.8985507246376812</td></tr>
+    <td>0.8983771483322356</td></tr>
 <tr><td>BERT-Linear-CRF</td>
-    <td></td></tr>
+    <td>0.8977943835121128</td></tr>
 <tr><td>BERT-BiLSTM-Linear</td>
-    <td></td></tr>
+    <td>0.8819152766110644</td></tr>
 <tr><td>BERT-BiLSTM-Linear-CRF</td>
-    <td>0.8751660026560425</td></tr>
+    <td>0.8873846891098599</td></tr>
 <tr><td>BERT(Prompt)</td>
     <td></td></tr>
 
@@ -187,7 +190,7 @@ CMeEE is evaluated by official judger: [https://tianchi.aliyun.com/dataset/dataD
 <tr><td>Dataset</td><td>Model</td><td> F1 </td></tr>
 </thread>
 <tbody>
-<tr><td rowspan="6">CMeEE</td><td>BiLSTM-Linear</td>
+<tr><td rowspan="7">CMeEE</td><td>BiLSTM-Linear</td>
     <td></td></tr>
 <tr><td>BiLSTM-Linear-CRF</td>
     <td></td></tr>

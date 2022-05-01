@@ -23,7 +23,7 @@
             "args": [
                 "--dataset", "conll2003",
                // "--model", "BERT-Prompt",
-                "--model", "BERT-BiLSTM-Linear-CRF",
+                "--model", "BERT-BiLSTM-Linear",
                // "--model", "BERT-Linear",
                // "--model", "BERT-BiLSTM-Linear",
                // "--model", "BERT-BiLSTM-Linear-CRF",

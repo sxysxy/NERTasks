@@ -27,11 +27,29 @@ def test_tokenizer():
 
     pdb.set_trace()
 
-def test_loaddataset():
+def test_loaddataset1():
     raw_dataset = get_datasets('conll2003-base')
     tokenizer : BertTokenizer = AutoTokenizer.from_pretrained("bert-base-uncased")
 
     sample_raw = raw_dataset["train"][0]
+
+   # ner_dataset = raw_dataset.map(lambda x : dataset_map_raw2ner(tokenizer, x), batched=True)
+   # ner_dataset.set_format('torch', columns=["input_ids", "attention_mask", "length", "tags"])
+    ner_dataset, _ = dataset_map_raw2ner(raw_dataset, tokenizer)
+    sample_ner = ner_dataset["train"][0]
+
+    loader = DataLoader(ner_dataset["train"], batch_size=1)
+
+    sample_batch = loader.__iter__().next()
+
+    pdb.set_trace()
+
+def test_loaddataset2():
+    raw_dataset = get_datasets('ontonotes5-base')
+    tokenizer : BertTokenizer = AutoTokenizer.from_pretrained("bert-base-chinese")
+
+    sample_raw = raw_dataset["train"][0]
+    pdb.set_trace()
 
    # ner_dataset = raw_dataset.map(lambda x : dataset_map_raw2ner(tokenizer, x), batched=True)
    # ner_dataset.set_format('torch', columns=["input_ids", "attention_mask", "length", "tags"])
@@ -63,5 +81,5 @@ def test_loaddataset_prompt():
 
 if __name__ == "__main__":
   #  test_tokenizer()
-    test_loaddataset()
+    test_loaddataset2()
   #  test_loaddataset_prompt()

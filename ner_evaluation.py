@@ -142,9 +142,9 @@ class Seqeval(datasets.Metric):
             sample_weight=sample_weight,
             zero_division=zero_division,
         )
-        report.pop("macro avg")
+        overall_macro = report.pop("macro avg")
         report.pop("weighted avg")
-        overall_score = report.pop("micro avg")
+        overall_mirco = report.pop("micro avg")
 
         scores = {
             type_name: {
@@ -155,9 +155,12 @@ class Seqeval(datasets.Metric):
             }
             for type_name, score in report.items()
         }
-        scores["overall_precision"] = overall_score["precision"]
-        scores["overall_recall"] = overall_score["recall"]
-        scores["overall_f1"] = overall_score["f1-score"]
+        scores["overall_micro_precision"] = overall_mirco["precision"]
+        scores["overall_micro_recall"] = overall_mirco["recall"]
+        scores["overall_micro_f1"] = overall_mirco["f1-score"]
+        scores["overall_macro_precision"] = overall_macro["precision"]
+        scores["overall_macro_recall"] = overall_macro["recall"]
+        scores["overall_macro_f1"] = overall_macro["f1-score"]
         scores["overall_accuracy"] = accuracy_score(y_true=references, y_pred=predictions)
 
         return scores

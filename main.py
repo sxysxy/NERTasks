@@ -77,10 +77,17 @@ def main():
                 for prediction, label in zip(y_pred, y_true)
             ]
             results = metric_eval.compute(predictions=true_predictions, references=true_labels)
+            if config.f1 == Configs.OVERALL_MICRO:
+                metrics_data.update({
+                    "f1": results["overall_micro_f1"],
+                })
+            elif config.f1 == Configs.OVERALL_MACRO:
+                metrics_data.update({
+                    "f1": results["overall_macro_f1"],
+                })
             metrics_data.update({
-                "f1": results["overall_f1"],
-                "accuracy": results["overall_accuracy"],
-            })
+                "accuracy": results["overall_accuracy"]
+                })
             print(metrics_data)
             return metrics_data
         
@@ -91,6 +98,7 @@ def main():
         if m["f1"] > best_f1:
             best_f1 = m["f1"]
     all_metrics["best_f1"] = best_f1
+    all_metrics["GPU"] = torch.cuda.get_device_name()
     os.makedirs("results", exist_ok=True, mode=0o755)
 
     now = datetime.now()
