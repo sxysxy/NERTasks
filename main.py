@@ -9,7 +9,6 @@ from h11 import Data
 from transformers import set_seed
 from myutils import Configs, auto_create_model, auto_get_dataset, auto_get_tag_names, auto_get_tokenizer, dataset_map_raw2ner, get_ner_evaluation
 from mytrainer import NERTrainer
-from transformers import AdamW
 import torch
 from torch.utils.data import DataLoader
 import torch.nn.functional as F
@@ -34,8 +33,8 @@ def main():
     model : INERModel = auto_create_model(config, tokenizer).cuda()
     ner_dataset, columns = dataset_map_raw2ner(raw_dataset, tokenizer)
 
-    optimizer = AdamW(model.parameters(), lr=config.ner_lr, weight_decay=config.ner_weight_decay)
     #optimizer = optim.Adam(model.parameters(), lr=config.ner_lr)
+    optimizer = optim.AdamW(model.parameters(), lr=config.ner_lr, weight_decay=config.ner_weight_decay)
     trainer = NERTrainer(model, 
                         optimizer=optimizer, 
                         warmup_ratio=config.warmup_ratio,

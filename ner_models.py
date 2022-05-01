@@ -236,9 +236,8 @@ class NER_BERT_Prompt(INERModel):
         return self.bert(input_ids=X["input_ids"], labels=X["tags"], return_dict=True)
 
     def decode_to_tags(self, **X):
-        logits = self.forward(**X)['logits'].squeeze(0)[1:-1]
+        logits = self.forward(**X)['logits'].squeeze(0)[1:-1, :]
         result = torch.argmax(F.softmax(logits, dim=-1), dim=-1).tolist()
-        
         dec = []
         for tid in result:
             word = self.tokenizer.decode(tid)

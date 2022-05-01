@@ -379,8 +379,8 @@ def dataset_map_raw2prompt(tokenizer, tag_names, examples):
   #  pdb.set_trace()
     return {
         "input_ids" : tokenized["input_ids"],
-        "attention_mask" : tokenized["attention_mask"],
-        "length" : length,
+       # "attention_mask" : tokenized["attention_mask"],
+       # "length" : length,
         "tags" : prompts
     }
 

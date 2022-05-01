@@ -7,6 +7,7 @@ batch_size = 1
 grad_acc = 32
 lstm_layers = 2
 lstm_hidden_size = 256
+warmup_ratio = -1
 
 argv = sys.argv[1:]
 
