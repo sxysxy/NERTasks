@@ -24,10 +24,10 @@ It implements:
 <tr><td rowspan="3">Misc</td></tr>
     <tr><td>Tokenizer from datasets</td></tr>
     <tr><td>NER Metrics</td></tr>
-
-
 </tbody>
 </table>
+
+You can easily add your own models and datasets into this framework.
 
 # Requirements:
 
@@ -35,7 +35,7 @@ Linux(Tested)/Windows(Not Tested) with Nvidia GPUs.
 
 # Install dependencies.
 
-Recommend to use conda create a python environment, python==3.9. For example:
+Recommend to use conda creating a python environment(python==3.9). For example:
 
 ```
 conda create -n NER python=3.9

@@ -198,10 +198,10 @@ class NER_BERT_BiLSTM_Linear(INERModel):
         X : { "input_ids" : [batch_size, seq_len], "tags" : [batch_size, seq_len] }
         batch_size = 1
         '''
-        bert_out = self.bert(input_ids=X["input_ids"])[0]              #[batch_size, seq_len, bert_hidden_size]
-        lstm_out, _ = self.lstm(bert_out)                              #[batch_size, seq_len, lstm_hidden_size]
-        logits = self.linear(self.dropout(lstm_out.squeeze(0)[1:-1]))  #[seq_len, tag_size]
-        return self.return_loss_by_logsoftmax_logits(logits, X["tags"].view(-1)[1:-1] if "tags" in X else None)
+        bert_out = self.bert(input_ids=X["input_ids"])[0]                 #[batch_size, seq_len, bert_hidden_size]
+        lstm_out, _ = self.lstm(bert_out)                                 #[batch_size, seq_len, lstm_hidden_size]
+        logits = self.linear(self.dropout(lstm_out[:, 1:-1, :]))  #[seq_len, tag_size]
+        return self.return_loss_by_logsoftmax_logits(logits.squeeze(0), X["tags"].view(-1)[1:-1] if "tags" in X else None)
 
 
 class NER_BERT_BiLSTM_Linear_CRF(NER_With_CRF):

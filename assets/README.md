@@ -26,7 +26,5 @@ assets
       /pretrained_models
                         /bert-base-chinese (not necessary, use it if available)
                         /bert-base-uncased (not necessary, use it if available)
-      /temp
-      The program will automatically create this folder and save something in it.
 ```
       
