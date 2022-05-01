@@ -1,6 +1,20 @@
 # NERTasks
 
-<h3><b> A simple NER framework. </b> </h3>
+# Contents
+## [Waht's It?](#0)
+## [1. Requrements](#1)
+## [2. Install Dependencies](#2)
+## [3. How To Prepare Datasets](#3)
+## [4. Experiments](#4)
+### [&nbsp; 4.1 Hyper Parameters](#4_1)
+### [&nbsp; 4.2 Model Parameters](#4_2)
+### [&nbsp; 4.3 Results](#4_3)
+
+<p id="0"> </p>
+
+# What's It? 
+
+<h4><b> A simple NER framework. </b> </h4>
 
 It implements:
 
@@ -28,14 +42,6 @@ It implements:
 </table>
 
 You can easily add your own models and datasets into this framework.
-
-
-# Contents
-## [1. Requrements](#1)
-## [2. Install Dependencies](#2)
-## [3. How To Prepare Datasets](#3)
-## [4. Experiments](#4)
-### [&nbsp; 4.1 Hyper Parameters](#4_1)
 
 <p id="1"> </p>
 
@@ -89,15 +95,15 @@ For some reason(copyright and some other things), I can't directly provide datas
 </thead>
 <tbody>
 <tr><td>BiLSTM-Linear</td>
-        <td rowspan="7">Adam</td>
+        <td rowspan="6">Adam</td>
         <td rowspan="2"> 0.001 </td>
-        <td rowspan="7"> 5e-3 </td>
+        <td rowspan="6"> 5e-3 </td>
         <td rowspan="3"> 0.2 </td>
-        <td rowspan="7"> None </td>
-        <td rowspan="7"> 1 </td>
-        <td rowspan="7"> 32 </td>
-        <td rowspan="7"> 12 </td>
-        <td rowspan="7"> 233 </td>
+        <td rowspan="6"> None </td>
+        <td rowspan="6"> 1 </td>
+        <td rowspan="6"> 32 </td>
+        <td rowspan="6"> 12 </td>
+        <td rowspan="6"> 233 </td></tr>
     <tr><td>BiLSTM-Linear-CRF</td></tr>
     <tr><td>BERT-Linear</td>
         <td rowspan="5">0.0001</td>
@@ -105,10 +111,11 @@ For some reason(copyright and some other things), I can't directly provide datas
     <tr><td>BERT-BiLSTM-Linear</td>
         <td rowspan="4">None</td></tr>
     <tr><td>BERT-BiLSTM-Linear-CRF</td></tr>
-    <tr><td>BERT(Prompt)</td></tr></tr>
-</tr>
+    <tr><td>BERT(Prompt)</td></tr>
 </tbody>
 </table>
+
+<p id="4_2"> </p>
 
 ## Model Parameters
 
@@ -121,5 +128,66 @@ For some reason(copyright and some other things), I can't directly provide datas
 </tbody>
 </table>
 
+<p id="4_3"> </p>
 
+## Results
 
+<table>
+<thead>
+<tr>
+    <td> Dataset </td>
+    <td> Model </td>
+    <td> Overall Span-Based F1 </td>
+</tr>
+</thead>
+<tbody>
+<tr><td rowspan="6">CoNLL2003</td><td>BiLSTM-Linear</td>
+    <td>0.6617193523515805</td></tr>
+<tr><td>BiLSTM-Linear-CRF</td>
+    <td>0.6955084580983861</td></tr>
+<tr><td>BERT-Linear</td>
+    <td>0.8985507246376812</td></tr>
+<tr><td>BERT-BiLSTM-Linear</td>
+    <td></td></tr>
+<tr><td>BERT-BiLSTM-Linear-CRF</td>
+    <td>0.8751660026560425</td></tr>
+<tr><td>BERT(Prompt)</td>
+    <td></td></tr>
+
+<tr><td rowspan="6">OntoNotes5(Chinese)</td><td>BiLSTM-Linear</td>
+    <td></td></tr>
+<tr><td>BiLSTM-Linear-CRF</td>
+    <td></td></tr>
+<tr><td>BERT-Linear</td>
+    <td></td></tr>
+<tr><td>BERT-BiLSTM-Linear</td>
+    <td></td></tr>
+<tr><td>BERT-BiLSTM-Linear-CRF</td>
+    <td></td></tr>
+<tr><td>BERT(Prompt)</td>
+    <td></td></tr>
+</tbody>
+</thead>
+</table>
+
+CMeEE is evaluated by official judger: [https://tianchi.aliyun.com/dataset/dataDetail?dataId=95414](https://tianchi.aliyun.com/dataset/dataDetail?dataId=95414)
+
+<table>
+<thread>
+<tr><td>Dataset</td><td>Model</td><td> F1 </td></tr>
+</thread>
+<tbody>
+<tr><td rowspan="6">CMeEE</td><td>BiLSTM-Linear</td>
+    <td></td></tr>
+<tr><td>BiLSTM-Linear-CRF</td>
+    <td></td></tr>
+<tr><td>BERT-Linear</td>
+    <td></td></tr>
+<tr><td>BERT-BiLSTM-Linear</td>
+    <td></td></tr>
+<tr><td>BERT-BiLSTM-Linear-CRF</td>
+    <td></td></tr>
+<tr><td>BERT(Prompt)</td>
+    <td></td></tr>
+</tbody>
+</table>
