@@ -92,7 +92,6 @@ For some reason(copyright and some other things), I can't directly provide datas
 <thead>
 <tr><td> </td>
     <td>Optimizer</td>
-    <td>Learning Rate</td> 
     <td>Weight Decay</td> 
     <td>Warmup Ratio</td> 
     <td>Label Smoothing</td> 
@@ -103,22 +102,40 @@ For some reason(copyright and some other things), I can't directly provide datas
     </tr>
 </thead>
 <tbody>
-<tr><td>BiLSTM-Linear</td>
-        <td rowspan="7">Adam</td>
-        <td rowspan="2"> 0.001 </td>
-        <td rowspan="7"> 5e-3 </td>
-        <td rowspan="7"> None </td>
-        <td rowspan="7"> None </td>
-        <td rowspan="7"> 1 </td>
-        <td rowspan="7"> 32 </td>
-        <td rowspan="7"> 12 </td>
-        <td rowspan="7"> 233 </td></tr>
-    <tr><td>BiLSTM-Linear-CRF</td></tr>
-    <tr><td>BERT-Linear</td>
-        <td rowspan="5">0.0001</td>
-        </tr>
-    <tr><td>BERT-Linear-CRF</td></tr>
-    <tr><td>BERT-BiLSTM-Linear</td></tr>
+<tr>
+    <td>AdamW</td>
+    <td>5e-3</td>
+    <td>0.2</td>
+    <td>None</td>
+    <td>None</td>
+    <td>1</td>
+    <td>32</td>
+    <td>12</td>
+    <td>233</td>
+</tr>
+</tbody>
+</table>
+
+Learning Rates:
+
+<table>
+<thead>
+<tr><td> </td>
+    <td>CoNLL2003</td>
+    <td>OntoNotes5</td>
+    <td>CMeEE</td>
+    </tr>
+</thead>
+<tbody>
+<tr><td>BiLSTM-Linear</td></td>
+    <td rowspan="2">0.001</td></tr>
+<tr><td>BiLSTM-Linear-CRF</td></tr>
+<tr><td>BERT-Linear</td>
+    <td colspan="3" rowspan="2">0.0001</td></tr>
+<tr><td>BERT-Linear-CRF</td></tr>
+<tr><td>BERT-BiLSTM-Linear</td>
+    <td rowspan="2">0.0001</td>
+    <td colspan="2" rowspan="2">3e-5</td></tr>
     <tr><td>BERT-BiLSTM-Linear-CRF</td></tr>
     <tr><td>BERT(Prompt)</td></tr>
 </tbody>
@@ -166,15 +183,15 @@ For some reason(copyright and some other things), I can't directly provide datas
     <td></td></tr>
 
 <tr><td rowspan="7">OntoNotes5(Chinese)</td><td>BiLSTM-Linear</td>
-    <td></td></tr>
+    <td>0.637999350438454</td></tr>
 <tr><td>BiLSTM-Linear-CRF</td>
-    <td></td></tr>
+    <td>0.7033358449208851</td></tr>
 <tr><td>BERT-Linear</td>
-    <td></td></tr>
+    <td>0.7403041825095057</td></tr>
 <tr><td>BERT-Linear-CRF</td>
-    <td></td></tr>
+    <td>0.7535838822161953</td></tr>
 <tr><td>BERT-BiLSTM-Linear</td>
-    <td></td></tr>
+    <td>0.7511438739196745</td></tr>
 <tr><td>BERT-BiLSTM-Linear-CRF</td>
     <td></td></tr>
 <tr><td>BERT(Prompt)</td>

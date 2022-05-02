@@ -5,7 +5,6 @@
 
 
 import random
-from h11 import Data
 from transformers import set_seed
 from myutils import Configs, auto_create_model, auto_get_dataset, auto_get_tag_names, auto_get_tokenizer, dataset_map_raw2ner, get_ner_evaluation
 from mytrainer import NERTrainer

@@ -52,6 +52,7 @@ class Configs:
             "overall_micro" : Configs.OVERALL_MICRO,
             "overall_macro" : Configs.OVERALL_MACRO
         }[namespec.f1]
+        self.save_model : bool = namespec.save_model
     
     @classmethod
     def parse_from(cls, argv):
@@ -96,6 +97,8 @@ class Configs:
                             help="Few shot: Use len(trainset) * few_shot samples to train. Default to None(Full data).")
         ps.add_argument("--f1", type=str, choices=["overall_micro", "overall_macro"], default="overall_micro",
                             help="Micro F1 or Macro F1?")
+        ps.add_argument("--save_model", action="store_true", default=False,
+                            help="Whether to save the best model during training")
         return ps.parse_args(argv)
     
     cached_config = None
