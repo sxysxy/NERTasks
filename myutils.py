@@ -65,8 +65,8 @@ class Configs:
                             help="Warmup epoches / total epoches, default = 0.2.")
         ps.add_argument("--grad_acc", type=int, default=8, 
                             help="Gradient accumulation, default=8.")
-        ps.add_argument("--batch_size", type=int, default=8, 
-                            help="Batch size")
+        ps.add_argument("--batch_size", type=int, default=1, 
+                            help="Batch size, default to 1.")
         ps.add_argument("--clip_grad_norm", type=float, default=1.0,
                             help="torch.nn.utils.clip_grad_norm_")
         ps.add_argument("--ner_lr", type=float, default=3e-4,

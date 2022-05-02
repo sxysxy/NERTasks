@@ -90,13 +90,14 @@ For some reason(copyright and some other things), I can't directly provide datas
 
 <table>
 <thead>
-<tr><td> </td>
+<tr>
     <td>Optimizer</td>
     <td>Weight Decay</td> 
     <td>Warmup Ratio</td> 
     <td>Label Smoothing</td> 
     <td>Batch Size</td> 
     <td>Gradient Accumulation</td> 
+    <td>Clip Grad Norm</td>
     <td>Total Epoches</td>
     <td>Random Seed</td>
     </tr>
@@ -107,9 +108,9 @@ For some reason(copyright and some other things), I can't directly provide datas
     <td>5e-3</td>
     <td>0.2</td>
     <td>None</td>
-    <td>None</td>
     <td>1</td>
     <td>32</td>
+    <td>1.0</td>
     <td>12</td>
     <td>233</td>
 </tr>
@@ -128,14 +129,14 @@ Learning Rates:
 </thead>
 <tbody>
 <tr><td>BiLSTM-Linear</td></td>
-    <td rowspan="2">0.001</td></tr>
+    <td colspan="3" rowspan="2">0.001</td></tr>
 <tr><td>BiLSTM-Linear-CRF</td></tr>
 <tr><td>BERT-Linear</td>
     <td colspan="3" rowspan="2">0.0001</td></tr>
 <tr><td>BERT-Linear-CRF</td></tr>
 <tr><td>BERT-BiLSTM-Linear</td>
-    <td rowspan="2">0.0001</td>
-    <td colspan="2" rowspan="2">3e-5</td></tr>
+    <td rowspan="3">0.0001</td>
+    <td colspan="2" rowspan="3">3e-5</td></tr>
     <tr><td>BERT-BiLSTM-Linear-CRF</td></tr>
     <tr><td>BERT(Prompt)</td></tr>
 </tbody>
@@ -164,36 +165,51 @@ Learning Rates:
     <td> Dataset </td>
     <td> Model </td>
     <td> Overall Span-Based Micro F1 </td>
+    <td> Training Time Evey Epoch in Average<br>
+    (On a Quadro RTX8000)</td>
 </tr>
 </thead>
 <tbody>
 <tr><td rowspan="7">CoNLL2003</td><td>BiLSTM-Linear</td>
-    <td>0.6517005491858561</td></tr>
+    <td>0.6517005491858561</td>
+    <td>13.98s</td></tr>
 <tr><td>BiLSTM-Linear-CRF</td>
-    <td>0.6949365863103882</td></tr>
+    <td>0.6949365863103882</td>
+    <td>44.07s</td></tr>
 <tr><td>BERT-Linear</td>
-    <td>0.8983771483322356</td></tr>
+    <td>0.8983771483322356</td>
+    <td>81.81s</td></tr>
 <tr><td>BERT-Linear-CRF</td>
-    <td>0.8977943835121128</td></tr>
+    <td>0.8977943835121128</td>
+    <td>120.94s</td></tr>
 <tr><td>BERT-BiLSTM-Linear</td>
-    <td>0.8819152766110644</td></tr>
+    <td>0.8819152766110644</td>
+    <td>117.37s</td></tr>
 <tr><td>BERT-BiLSTM-Linear-CRF</td>
-    <td>0.8873846891098599</td></tr>
+    <td>0.8873846891098599</td>
+    <td>130.85s</td></tr>
 <tr><td>BERT(Prompt)</td>
+    <td></td>
     <td></td></tr>
 
 <tr><td rowspan="7">OntoNotes5(Chinese)</td><td>BiLSTM-Linear</td>
-    <td>0.637999350438454</td></tr>
+    <td>0.637999350438454</td>
+    <td>160.55s</td></tr>
 <tr><td>BiLSTM-Linear-CRF</td>
-    <td>0.7033358449208851</td></tr>
+    <td>0.7033358449208851</td>
+    <td>319.87s</td></tr>
 <tr><td>BERT-Linear</td>
-    <td>0.7403041825095057</td></tr>
+    <td>0.7403041825095057</td>
+    <td>413.20s</td></tr>
 <tr><td>BERT-Linear-CRF</td>
-    <td>0.7535838822161953</td></tr>
+    <td>0.7535838822161953</td>
+    <td>595.71s</td></tr>
 <tr><td>BERT-BiLSTM-Linear</td>
-    <td>0.7511438739196745</td></tr>
+    <td>0.7511438739196745</td>
+    <td>590.53s</td></tr>
 <tr><td>BERT-BiLSTM-Linear-CRF</td>
-    <td></td></tr>
+    <td>0.7616389699353039</td>
+    <td>800.23s</td></tr>
 <tr><td>BERT(Prompt)</td>
     <td></td></tr>
 </tbody>

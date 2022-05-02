@@ -31,14 +31,18 @@ class AllDatasets(datasets.GeneratorBasedBuilder):
                 "tag_names" : ner_datasets_configs["conll2003"]["tag_names"],
                 "train_url" : f"{assets_path}/raw_datasets/CoNLL2003_NER/train",
                 "test_url" :  f"{assets_path}/raw_datasets/CoNLL2003_NER/test",
-                "data_aug" : None
             }),
         DatasetConfig(name = "ontonotes5-base",
             config = {
                 "tag_names" : ner_datasets_configs["ontonotes5"]["tag_names"],
                 "train_url" : f"{assets_path}/raw_datasets/ontonotes5_ch_ner/ontonotes5.train.bmes",
                 "test_url"  : f"{assets_path}/raw_datasets/ontonotes5_ch_ner/ontonotes5.test.bmes",
-                "data_aug" : None
+            }),
+        DatasetConfig(name = "cmeee-base",
+            config = {
+                "tag_names" : [],
+                "train_url" : f"{assets_path}/raw_datasets/CMeEE_train.json",
+                "test_url" : f"{assets_path}/raw_datasets/CMeEE_dev.json"
             }),
     ]
 
@@ -115,14 +119,30 @@ class AllDatasets(datasets.GeneratorBasedBuilder):
                 if len(text) > 0:
                     origin_texts.append(text)
                     origin_tags.append(tag)
-               # pdb.set_trace()
-                # pairs = filter(lambda x : len(x) == 2, map(lambda x : x.strip().split(), f.readlines()))
-                # tokens = []
-                # labels = []
-                # for pair in pairs:
-                #     tokens.append(pair[0])
-                #     labels.append(pair[1])
-                # assert(type(tokens[0]) == str)  #确保与原版的格式相同
+        elif self.config.name.startswith("cmeee"):
+            with open(args["filename"]) as f:
+                data = json.load(f)
+                origin_texts = []
+                origin_tags = []
+                for sample in data:
+                    text = list(sample["text"])
+                    tag = [ "O" ] * len(text)
+                    for ent in sample["entities"]:
+                        spos = ent["start_idx"]
+                        epos = ent["end_idx"]
+                        tag = ent["type"]
+                        if epos == spos:
+                            tag[spos] = f"S-{tag}"
+                        else:
+                            tag[spos] = f"B-{tag}"
+                            p = spos + 1
+                            while p <= epos-1:
+                                tag[p] = f"M-{tag}"
+                                p += 1
+                            tag[epos] = f"E-{tag}"
+                    #pairs.append((text, tag))
+                    origin_texts.append(text)
+                    origin_tags.append(tag)  
         else:
             raise RuntimeError(f"Unresolved dataset {self.config.name}")
         
