@@ -27,7 +27,7 @@ It implements:
 <tr><td></td><td>Item</td><td>Source</td></tr>
 </thred>
 <tbody>
-<tr><td rowspan="8">Models</td><td></td></tr>
+<tr><td rowspan="8">Models</td></tr>
     <tr><td>BiLSTM-Linear</td><td></td></tr>
     <tr><td>BiLSTM-Linear-CRF</td><td><a href="https://arxiv.org/abs/1603.01360">Neural Architectures for Named Entity Recognition</a></td></tr>
     <tr><td>BERT-Linear</td><td></td></tr>
@@ -211,6 +211,7 @@ Learning Rates:
     <td>0.7616389699353039</td>
     <td>800.23s</td></tr>
 <tr><td>BERT(Prompt)</td>
+    <td></td>
     <td></td></tr>
 </tbody>
 </thead>
