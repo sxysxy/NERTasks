@@ -225,6 +225,10 @@ class NER_BERT_BiLSTM_Linear_CRF(NER_With_CRF):
     
 
 class NER_BERT_Prompt(INERModel):
+    '''
+    Template-free Prompt Tuning for Few-shot NER. 
+    Virtual label word approch.
+    '''
     def __init__(self, bert_model, tag_names):
         super().__init__()
         if isinstance(bert_model, BertForMaskedLM):
@@ -240,7 +244,7 @@ class NER_BERT_Prompt(INERModel):
             self.tag2idx[tag] = i
         
     def forward(self, **X):
-        return self.bert(input_ids=X["input_ids"], labels=X["tags"], return_dict=True)
+        return self.bert(input_ids=X["input_ids"], labels=X["labels"], return_dict=True)
 
     def decode_to_tags(self, **X):
         logits = self.forward(**X)['logits'].squeeze(0)[1:-1, :]

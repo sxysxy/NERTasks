@@ -24,13 +24,13 @@ It implements:
 
 <table>
 <thead>
-<tr><td></td><td>Item</td><td>Source</td></tr>
+<tr><td></td><td>Item</td><td>Source/Reference</td></tr>
 </thred>
 <tbody>
 <tr><td rowspan="8">Models</td></tr>
-    <tr><td>BiLSTM-Linear</td><td></td></tr>
+    <tr><td>BiLSTM-Linear</td><td><a href="https://www.researchgate.net/publication/13853244_Long_Short-term_Memory">Long Short-term Memory</a></td></tr>
     <tr><td>BiLSTM-Linear-CRF</td><td><a href="https://arxiv.org/abs/1603.01360">Neural Architectures for Named Entity Recognition</a></td></tr>
-    <tr><td>BERT-Linear</td><td></td></tr>
+    <tr><td>BERT-Linear</td><td><a href="https://arxiv.org/abs/1810.04805">BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding</a></td></tr>
     <tr><td>BERT-Linear-CRF</td><td></td></tr>
     <tr><td>BERT-BiLSTM-Linear</td><td></td></tr>
     <tr><td>BERT-BiLSTM-Linear-CRF</td><td></td></tr>
@@ -165,7 +165,7 @@ Learning Rates:
     <td> Dataset </td>
     <td> Model </td>
     <td> Overall Span-Based Micro F1 </td>
-    <td> Training Time Evey Epoch in Average<br>
+    <td> Average Training Time Per Epoch<br>
     (On a Quadro RTX8000)</td>
 </tr>
 </thead>
@@ -189,8 +189,8 @@ Learning Rates:
     <td>0.8873846891098599</td>
     <td>130.85s</td></tr>
 <tr><td>BERT(Prompt)</td>
-    <td></td>
-    <td></td></tr>
+    <td>0.8815239460169593</td>
+    <td>106.85s</td></tr>
 
 <tr><td rowspan="7">OntoNotes5(Chinese)</td><td>BiLSTM-Linear</td>
     <td>0.637999350438454</td>

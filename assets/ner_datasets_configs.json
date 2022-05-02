@@ -1,7 +1,17 @@
 {
     "conll2003" : {
         "default_bert" : "bert-base-uncased",
-        "tag_names" : ["B-MISC", "I-ORG", "B-PER", "I-LOC", "B-LOC", "I-MISC", "B-ORG", "O", "I-PER"]
+        "tag_names" : ["B-MISC", "I-ORG", "B-PER", "I-LOC", "B-LOC", "I-MISC", "B-ORG", "O", "I-PER"],
+        "prompt_label_words" : {
+            "B-MISC" : ["Australian", 2827],
+            "I-MISC" : ["Australian", 2827],
+            "B-ORG" : ["RUGBY", 4043],   
+            "I-ORG" : ["RUGBY", 4043],   
+            "B-PER" : ["John", 2198],   
+            "I-PER" : ["John", 2198],   
+            "B-LOC" : ["China", 2859],   
+            "I-LOC" : ["China", 2859] 
+        }
     },
 
     "ontonotes5" : {

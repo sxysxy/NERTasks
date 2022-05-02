@@ -6,7 +6,11 @@
 
 import random
 from transformers import set_seed
-from myutils import Configs, auto_create_model, auto_get_dataset, auto_get_tag_names, auto_get_tokenizer, dataset_map_raw2ner, get_ner_evaluation
+from myutils import (Configs, 
+    auto_create_model, auto_get_dataset, auto_get_tag_names, 
+    auto_get_tokenizer, dataset_map_raw2ner, dataset_map_raw2prompt, 
+    get_ner_evaluation
+)
 from mytrainer import NERTrainer
 import torch
 from torch.utils.data import DataLoader
@@ -30,7 +34,10 @@ def main():
     
     tokenizer = auto_get_tokenizer(config)
     model : INERModel = auto_create_model(config, tokenizer).cuda()
-    ner_dataset, columns = dataset_map_raw2ner(raw_dataset, tokenizer)
+    if not config.using_prompt:
+        ner_dataset, columns = dataset_map_raw2ner(raw_dataset, tokenizer)
+    else:
+        ner_dataset, columns = dataset_map_raw2prompt(raw_dataset, tokenizer, auto_get_tag_names(config))
 
     #optimizer = optim.Adam(model.parameters(), lr=config.ner_lr)
     optimizer = optim.AdamW(model.parameters(), lr=config.ner_lr, weight_decay=config.ner_weight_decay)

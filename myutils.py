@@ -327,33 +327,10 @@ def dataset_map_raw2ner(dataset : DatasetDict, tokenizer) -> Tuple[DatasetDict, 
     ds.set_format(type='torch', columns=columns)
     return ds, columns
 
-# def dataset_map_raw2ner_padded(tokenizer, examples):
-#     tokenized = tokenizer.batch_encode_plus(examples["tokens"], add_special_tokens=True, is_split_into_words=True, 
-#                                             padding='max_length', max_length=512, truncation=True, return_length=True)
 
-#     batch_tags = []
-#     length = []
-#     for sample_i, tags in enumerate(examples["tags"]):
-#         wids = tokenized.word_ids(sample_i)
-#         real_tags = []
-#         for wid in wids:
-#             if wid is None:
-#                 real_tags.append(-100)  #Ignore index for pytorch
-#             else:
-#                 real_tags.append(tags[wid])
-#         batch_tags.append(real_tags)
-#         length.append(sum(tokenized["attention_mask"][sample_i]))
-    
-#     return {
-#         "input_ids" : tokenized["input_ids"],
-#         "attention_mask" : tokenized["attention_mask"],
-#         "length" : length,
-#         "tags" : batch_tags
-#     }
-
-def dataset_map_raw2prompt(tokenizer, tag_names, examples):
+def dataset_map_raw2prompt_kernel(tokenizer, tag_names, examples):
     tokenized = tokenizer.batch_encode_plus(examples["tokens"], add_special_tokens=True, is_split_into_words=True, 
-                                            padding='max_length', max_length=512, truncation=True, return_length=True)
+                                            padding=False, max_length=512, truncation=True, return_length=True)
 
     prompts = copy.deepcopy(tokenized["input_ids"])
     #batch_encode_plus is fast
@@ -361,6 +338,7 @@ def dataset_map_raw2prompt(tokenizer, tag_names, examples):
     length = []
     mapped_poses = []
     mapped_tags = []
+    batch_tags = []
     for sample_i, tags in enumerate(examples["tags"]):
         wids = tokenized.word_ids(sample_i)
        # texts = tokenized["input_ids"][sample_i]
@@ -369,18 +347,23 @@ def dataset_map_raw2prompt(tokenizer, tag_names, examples):
         mapped_tag = []
         j = 0
        # pdb.set_trace()
+        real_tags = []
         for wid in wids:
             if wid != None:
                 tag = tag_names[tags[wid]]
+                real_tags.append(tags[wid])
                 if tag != 'O':
                     mapped_pos.append(j)    #record where to map to labelword
                     mapped_tag.append(tag)  #record the labelword
+            else:
+                real_tags.append(-100)
             j += 1
        # pdb.set_trace()
        # batch_tags.append(real_tags)
         length.append(real_len)
         mapped_poses.append(mapped_pos)
         mapped_tags.append(mapped_tag)
+        batch_tags.append(real_tags)
     
     tokenized3 = tokenizer.batch_encode_plus(mapped_tags, add_special_tokens=False, is_split_into_words=True, padding=False, truncation=False,
                                                         return_attention_mask=False, return_token_type_ids=False)
@@ -395,9 +378,15 @@ def dataset_map_raw2prompt(tokenizer, tag_names, examples):
         "input_ids" : tokenized["input_ids"],
        # "attention_mask" : tokenized["attention_mask"],
        # "length" : length,
-        "tags" : prompts
+        "tags" : batch_tags,
+        "labels" : prompts
     }
 
+def dataset_map_raw2prompt(dataset : DatasetDict, tokenizer, tag_names) -> Tuple[DatasetDict, list[str]]:
+    columns = ["input_ids", "tags", "labels"]
+    ds = dataset.map(lambda x : dataset_map_raw2prompt_kernel(tokenizer, tag_names, x), batched=True)
+    ds.set_format(type='torch', columns=columns)
+    return ds, columns
     
 class NERDatasetsConfigs:
     with open(f"{get_base_dirname()}/assets/ner_datasets_configs.json") as f:
@@ -418,6 +407,8 @@ def auto_get_bert_name_or_path(config : Configs):
     bert = config.bert_name_or_path
     if not bert:
         bert = NERDatasetsConfigs.configs[config.dataset_name]["default_bert"]
+    if config.using_prompt:
+        bert = f"{bert}-{config.dataset_name}-prompt"
     if os.path.exists(f"{get_base_dirname()}/assets/pretrained_models/{bert}"):
         return f"{get_base_dirname()}/assets/pretrained_models/{bert}"
     else:
@@ -447,6 +438,6 @@ def auto_create_model(config : Configs, tokenizer):
         return NER_BERT_BiLSTM_Linear_CRF(auto_get_bert_name_or_path(config), len(auto_get_tag_names(config)), config.lstm_layers, config.lstm_hidden_size,
                             config.dropout_ratio)
     elif config.model_name == "BERT-Prompt":
-        return NER_BERT_Prompt(f"{auto_get_bert_name_or_path(config)}-{config.dataset_name}-prompt", auto_get_tag_names(config))
+        return NER_BERT_Prompt(auto_get_bert_name_or_path(config), auto_get_tag_names(config))
     else:
         raise RuntimeError(f"Can't get model {config}")
