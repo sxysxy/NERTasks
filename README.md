@@ -159,7 +159,8 @@ Learning Rates:
 <tr><td>BERT Model</td> <td>Embedding Size(For models without BERT)</td> <td> LSTM Hidden Size </td> <td> LSTM Layers </td> </tr>
 </thead>
 <tbody>
-<tr><td> bert-base </td> <td> 256 </td> <td> 256 </td> <td> 2 </td></tr>
+<tr><td> bert-base-uncased(CoNLL2003) </td> <td rowspan="2"> 256 </td> <td rowspan="2"> 256 </td> <td rowspan="2"> 2 </td></tr>
+<tr><td>bert-base-chinese(OntoNotes5,CCKS2019)</td></tr>
 </tbody>
 </table>
 
@@ -201,7 +202,7 @@ Learning Rates:
     <td>0.8873846891098599</td>
     <td>130.85s</td></tr>
 <tr><td>BERT(Prompt)</td>
-    <td>0.9230769230769231</td>
+    <td><b>0.9230769230769231</b></td>
     <td>99.70s</td></tr>
 
 <tr><td rowspan="7">OntoNotes5(Chinese)</td><td>BiLSTM-Linear</td>
@@ -220,7 +221,7 @@ Learning Rates:
     <td>0.7511438739196745</td>
     <td>590.53s</td></tr>
 <tr><td>BERT-BiLSTM-Linear-CRF</td>
-    <td>0.7616389699353039</td>
+    <td><b>0.7616389699353039</b></td>
     <td>800.23s</td></tr>
 <tr><td>BERT(Prompt)</td>
     <td>0.7376454875023851</td>
@@ -231,10 +232,10 @@ Learning Rates:
     <td>0.8057400574005741</td>
     <td>35.05s</td></tr>
     <td>BERT-Linear-CRF</td>
-    <td>0.8119778310861113</td>
+    <td><b>0.8119778310861113</b></td>
     <td>98.10s</td></tr>
     <td>BERT-Prompt</td>
-    <td>0.7642262895174708</td>
+    <td>0.7684884784959654</td>
     <td>39.58s</td></tr>
 
 </tbody>
@@ -245,24 +246,45 @@ Learning Rates:
 
 ### Few Shot Results
 
-Few Shot test on CCKS2019:
+Sampling 1% data in trainset by fixed random seed.
 
-I sampled 10 samples (total 1000) for training using fixed random seed. Here list the numbers of entities in few shot dataset:
+<b>Few Shot Test on CoNLL2003:</b>
+
+Sampled 69 samples(total 6973). Here list the number of entities in few shot dataset:
+
+```
+{'MISC': 51, 'ORG': 51, 'PER': 59, 'LOC': 90}
+```
+
+<table>
+<thead>
+<tr><td rowspan="2">Model</td><td colspan="1">Overall Span-Based F1 On Full Testset</td></tr>
+<tr><td>bert-base-uncased</td></tr>
+</thead>
+<tbody>
+<tr><td>BERT-Linear</td><td>0.6778304852260387</td></tr>
+<tr><td>BERT-Linear-CRF</td><td>0.6773130256876562</tr>
+<tr><td>BERT-Prompt</td><td><b>0.7524185216492908</b></td><tr>
+</tbody>
+</table>
+
+<b>Few Shot Test on CCKS2019:</b>
+
+Sampled 10 samples(total 100). Here list the numbers of entities in few shot dataset:
 
 ```
 {'手术': 9, '影像检查': 5, '疾病和诊断': 45, '解剖部位': 48, '实验室检验': 19, '药物': 10}
 ```
 
-In this case, bert_name_or_path = trueto/medbert-base-chinese
-
 <table>
 <thead>
-<tr><td>Model</td><td>Overall Span-Based F1 On Full Testset</td></tr>
+<tr><td rowspan="2">Model</td><td colspan="2">Overall Span-Based F1 On Full Testset</td></tr>
+<tr><td>bert-base-chinese</td><td>medbert-base-chinese</td></tr>
 </thead>
 <tbody>
-<tr><td>BERT-Linear</td><td>0.47296831955922863</td></tr>
-<tr><td>BERT-Linear-CRF</td><td>0.537369759619329</td></tr>
-<tr><td>BERT-Prompt</td><td>0.44231212097950406</td><tr>
+<tr><td>BERT-Linear</td><td>0.43918064570513354</td><td>0.47296831955922863</td></tr>
+<tr><td>BERT-Linear-CRF</td><td><b>0.47901807928346324</b></td><td><b>0.537369759619329</b></td></tr>
+<tr><td>BERT-Prompt</td><td>0.0038852361028093247</td><td>0.43338090840399623</td><tr>
 </tbody>
 </table>
 
