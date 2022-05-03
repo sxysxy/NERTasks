@@ -238,10 +238,16 @@ class NER_BERT_Prompt(INERModel):
             self.bert = BertForMaskedLM.from_pretrained(bert_model)
             self.bert_name = bert_model
         self.tokenizer = AutoTokenizer.from_pretrained(self.bert_name)
-        self.tag_names = list(tag_names)
+        self.tag_names = set(tag_names)
         self.tag2idx = {}
         for i, tag in enumerate(tag_names):
             self.tag2idx[tag] = i
+        '''
+        self.prompt_names = set()
+        for t in tag_names:
+            if t != 'O':
+                self.prompt_names.add(t[2:])
+        '''
         
     def forward(self, **X):
         return self.bert(input_ids=X["input_ids"], labels=X["labels"], return_dict=True)
@@ -250,12 +256,23 @@ class NER_BERT_Prompt(INERModel):
         logits = self.forward(**X)['logits'].squeeze(0)[1:-1, :]
         result = torch.argmax(F.softmax(logits, dim=-1), dim=-1).tolist()
         dec = []
+        #last_idx = -100
+        #last_labelword = None
+        #idx = 0
         for tid in result:
             word = self.tokenizer.decode(tid)
+            # if word in self.prompt_names:
+            #     if idx == last_idx+1 and word == last_labelword:
+            #         dec.append(f"I-{word}")
+            #     else:
+            #         dec.append(f"B-{word}")
+            #     last_idx = idx
+            #     last_labelword = word
             if word in self.tag_names:
                 dec.append(word)
             else:
                 dec.append('O')
+            #idx += 1
         return [dec]
    
 

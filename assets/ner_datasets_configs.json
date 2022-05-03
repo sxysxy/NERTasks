@@ -25,5 +25,13 @@
             "S-FAC", "E-QUANTITY", "S-TIME", "S-LAW", "E-WORK_OF_ART", "S-CARDINAL", "E-FAC", "M-PERCENT", 
             "S-GPE", "B-PERSON", "S-LOC", "S-QUANTITY", "M-DATE", "E-ORG", "B-WORK_OF_ART", "M-PRODUCT", 
             "B-QUANTITY", "E-NORP", "M-TIME", "B-ORG", "B-FAC", "S-PERSON"]
+    },
+
+    "ccks2019" : {
+        "default_bert" : "bert-base-chinese",
+        "tag_names" : [
+            "I-手术", "I-影像检查", "B-疾病和诊断", "B-影像检查", "B-解剖部位", "B-手术", 
+            "I-疾病和诊断", "B-实验室检验", "I-实验室检验", "I-药物", "B-药物", "O", "I-解剖部位"
+        ]
     }
 }

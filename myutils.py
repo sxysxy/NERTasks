@@ -47,7 +47,8 @@ class Configs:
         self.lstm_hidden_size : float = namespec.lstm_hidden_size
         self.embedding_size : float = namespec.embedding_size
         self.random_seed : float = namespec.random_seed
-        self.few_shot : float = namespec.few_shot
+        self.few_shot : float = namespec.few_shot if namespec.few_shot > 0 else None
+        self.few_shot_seed : int = namespec.few_shot_seed
         self.f1 = {
             "overall_micro" : Configs.OVERALL_MICRO,
             "overall_macro" : Configs.OVERALL_MACRO
@@ -57,7 +58,7 @@ class Configs:
     @classmethod
     def parse_from(cls, argv):
         ps = argparse.ArgumentParser()
-        ps.add_argument("--dataset", choices=['conll2003', 'ontonotes5', 'cmeee'], type=str, required=True, 
+        ps.add_argument("--dataset", choices=['conll2003', 'ontonotes5', 'ccks2019', 'cmeee'], type=str, required=True, 
                             help="Choose dataset.")
         ps.add_argument("--ner_epoches", type=int, default=10, 
                             help="The number of training epochs on NER Task, default = 10.")
@@ -93,8 +94,10 @@ class Configs:
                             help="nn.Embedding(), default = 256.")
         ps.add_argument("--random_seed", type=int, default=233,
                             help="Random seed for transformers.sed_seed, default = 233")   
-        ps.add_argument("--few_shot", type=float, default=None,
+        ps.add_argument("--few_shot", type=float, default=-1,
                             help="Few shot: Use len(trainset) * few_shot samples to train. Default to None(Full data).")
+        ps.add_argument("--few_shot_seed", type=int, default=15,
+                            help="Few shot sampling random seed.")
         ps.add_argument("--f1", type=str, choices=["overall_micro", "overall_macro"], default="overall_micro",
                             help="Micro F1 or Macro F1?")
         ps.add_argument("--save_model", action="store_true", default=False,
@@ -400,6 +403,8 @@ def auto_get_dataset(config : Configs):
         return get_datasets("conll2003-base")
     elif config.dataset_name == "ontonotes5":
         return get_datasets("ontonotes5-base")
+    elif config.dataset_name == "ccks2019":
+        return get_datasets("ccks2019-base")
     else:
         raise RuntimeError(f"Can't get dataset {config.dataset_name}")
 

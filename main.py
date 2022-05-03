@@ -30,7 +30,7 @@ def main():
     raw_dataset = auto_get_dataset(config)
     
     if config.few_shot:
-        raw_dataset["train"] = raw_dataset["train"].shuffle(2333).select(list(range(int(len(raw_dataset["train"]) * config.few_shot))))
+        raw_dataset["train"] = raw_dataset["train"].shuffle(config.few_shot_seed).select(list(range(int(len(raw_dataset["train"]) * config.few_shot))))
     
     tokenizer = auto_get_tokenizer(config)
     model : INERModel = auto_create_model(config, tokenizer).cuda()

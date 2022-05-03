@@ -17,12 +17,10 @@ assets
                                       /ontonotes5.train.bmes
                                       /ontonotes5.dev.bmes (not necessary)
                                       /ontonotes5.test.bmes
-                    /CMeEE
-                          /CMeEE_dev.json
-                          /CMeEE_train.json
-                          /CMeEE_test.json
-                          /example_gold.json (not necessary)
-                          /example_pred.json (not necessary)
+                    /CCKS2019
+                            /subtask1_test_set_with_anseer.json
+                            /subtask1_training_part1.txt
+                            /subtask1_training_part2.txt
       /pretrained_models
                         /bert-base-chinese (not necessary, use it if available)
                         /bert-base-uncased (not necessary, use it if available)
