@@ -248,11 +248,13 @@ Learning Rates:
 
 Few Shot test on CCKS2019:
 
-I Sampled 10 samples (total 1000) for training using fixed random seed. Here list the numbers of entities in few shot dataset:
+I sampled 10 samples (total 1000) for training using fixed random seed. Here list the numbers of entities in few shot dataset:
 
 ```
 {'手术': 9, '影像检查': 5, '疾病和诊断': 45, '解剖部位': 48, '实验室检验': 19, '药物': 10}
 ```
+
+In this case, bert_name_or_path = trueto/medbert-base-chinese
 
 <table>
 <thead>
