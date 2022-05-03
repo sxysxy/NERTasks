@@ -14,7 +14,6 @@
 ## [5. Acknowledgement And Citations](#5)
 ### [&nbsp; 5.1 People And Orgnizations](#5_1)
 ### [&nbsp; 5.2 Third-Party Libraries](#5_2)
-### [&nbsp; 5.3 Papers](#5_3) 
 
 <p id="0"> </p>
 
@@ -274,12 +273,18 @@ In this case, bert_name_or_path = trueto/medbert-base-chinese
 
 <p id="5_1"> </p>
 
-## People And Orgnizations]
+## People And Orgnizations
+
+- BJTU-NLP
 
 <p id="5_2"> </p>
 
-## Third-Party Libraries]
+## Third-Party Libraries
 
-<p id="5_3"> </p>
-
-## Papers
+- pytorch
+- transformers
+- datasets
+- seqeval
+- ujson
+- tqdm
+- matplotlib
