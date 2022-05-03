@@ -4,6 +4,7 @@
 # 加载数据集，使用这个文件的时候，要确保在datasets.load_dataset(本文件)之前设置os.environ["raw_datasets_path"]，数据集的路径
 # 看起来可能很像TextMosaic里面的代码，因为TextMosaic里那套代码也是我写的
 
+from distutils.command.config import config
 from fileinput import filename
 import datasets
 import os
@@ -17,6 +18,26 @@ import codecs
 assets_path = os.environ["assets_path"]
 with open(f"{assets_path}/ner_datasets_configs.json") as f:
     ner_datasets_configs = json.load(f)
+
+def map_tagname_bio2io(tag_names):
+    ios = set()
+    for tag in tag_names:
+        ios.add(f"I-{tag[2:]}" if tag != 'O' else tag)
+    return list(ios) 
+
+def convert_tagged_bio2io(tags):
+    iotags = []
+    for tag in tags:
+        iotag = []
+        for j in range(len(tag)):
+            if tag[j] == 'O':
+                iotag.append('O')
+            else:
+                iotag.append(f"I-{tag[j][2:]}")
+        iotags.append(iotag)
+    return iotags
+
+
 
 class DatasetConfig(datasets.BuilderConfig):
     def __init__(self, config, **kwargs):
@@ -46,12 +67,25 @@ class AllDatasets(datasets.GeneratorBasedBuilder):
                 "train_url" : f"{assets_path}/raw_datasets/CCKS2019",
                 "test_url" : f"{assets_path}/raw_datasets/CCKS2019"
             }),
-        DatasetConfig(name = "cmeee-base",
+        DatasetConfig(name = "conll2003-io", 
             config = {
-                "tag_names" : [],
-                "train_url" : f"{assets_path}/raw_datasets/CMeEE/CMeEE_train.json",
-                "test_url" : f"{assets_path}/raw_datasets/CMeEE/CMeEE_dev.json"
+                "tag_names" : map_tagname_bio2io( ner_datasets_configs["conll2003"]["tag_names"] ),
+                "train_url" : f"{assets_path}/raw_datasets/CoNLL2003_NER/train",
+                "test_url" :  f"{assets_path}/raw_datasets/CoNLL2003_NER/test",
             }),
+        DatasetConfig(name = "ontonotes5-io",
+            config = {
+                "tag_names" : map_tagname_bio2io( ner_datasets_configs["ontonotes5"]["tag_names"] ),
+                "train_url" : f"{assets_path}/raw_datasets/ontonotes5_ch_ner/ontonotes5.train.bmes",
+                "test_url"  : f"{assets_path}/raw_datasets/ontonotes5_ch_ner/ontonotes5.test.bmes",
+            }),
+        DatasetConfig(name = "ccks2019-io",
+            config = {
+                "tag_names" : map_tagname_bio2io( ner_datasets_configs["ccks2019"]["tag_names"] ),
+                "train_url" : f"{assets_path}/raw_datasets/CCKS2019",
+                "test_url" : f"{assets_path}/raw_datasets/CCKS2019"
+            }),
+ 
     ]
 
     def _info(self):
@@ -105,7 +139,8 @@ class AllDatasets(datasets.GeneratorBasedBuilder):
                 origin_texts = list(map(lambda x : x.strip().split(' '), filter(lambda t : len(t.strip()) > 0, f.readlines())))
             with open(f"{args['filename']}/seq.out") as f:
                 origin_tags = list(map(lambda x : x.strip().split(' '), filter(lambda t : len(t.strip()) > 0, f.readlines())))
-           
+            if self.config.name.endswith('io'):
+                origin_tags = convert_tagged_bio2io(origin_tags)
         elif self.config.name.startswith("ontonotes5"):
             print("Dataset: Loading OntoNotes5")
             with open(args["filename"], "r") as f:
@@ -127,34 +162,9 @@ class AllDatasets(datasets.GeneratorBasedBuilder):
                 if len(text) > 0:
                     origin_texts.append(text)
                     origin_tags.append(tag)
-        elif self.config.name.startswith("cmeee"):
-            print("Dataset: Loading CMeEE")
-            with open(args["filename"]) as f:
-                data = json.load(f)
-                origin_texts = []
-                origin_tags = []
-                for sample in data:
-                    text = list(sample["text"])
-                    tag = [ "O" ] * len(text)
-                    for ent in sample["entities"]:
-                        spos = ent["start_idx"]
-                        epos = ent["end_idx"]
-                        tag = ent["type"]
-                        if epos == spos:
-                            tag[spos] = f"S-{tag}"
-                        else:
-                            tag[spos] = f"B-{tag}"
-                            p = spos + 1
-                            while p <= epos-1:
-                                tag[p] = f"M-{tag}"
-                                p += 1
-                            tag[epos] = f"E-{tag}"
-                    #pairs.append((text, tag))
-                    origin_texts.append(text)
-                    origin_tags.append(tag)  
         elif self.config.name.startswith("ccks2019"):
             print("Dataset: Loading CCKS2019")
-            def read_ccks_jsonl(filename):
+            def read_ccks_jsonl(filename, scheme='BIO'):
                 texts = []
                 tags = []
                 with codecs.open(filename, "r", 'utf_8_sig') as f:
@@ -172,27 +182,31 @@ class AllDatasets(datasets.GeneratorBasedBuilder):
                             spos = ent["start_pos"]
                             epos = ent["end_pos"]
                             ent_type = ent["label_type"]
-                            tag[spos] = f"B-{ent_type}"
-                            for p in range(spos+1, epos):
-                                tag[p] = f"I-{ent_type}"
+                            if scheme == "BIO":
+                                tag[spos] = f"B-{ent_type}"
+                                for p in range(spos+1, epos):
+                                    tag[p] = f"I-{ent_type}"
+                            elif scheme == "IO":
+                                for p in range(spos, epos):
+                                    tag[p] = f"I-{ent_type}"
+                            else:
+                                raise RuntimeError(f"Unknown scheme {scheme}")
                         tags.append(tag)
                 return texts, tags
             if args["split"] == "train":
-                origin_texts, origin_tags = read_ccks_jsonl(os.path.join(args["filename"], "subtask1_training_part1.txt"))
-                a, b = read_ccks_jsonl(os.path.join(args["filename"], "subtask1_training_part2.txt"))
+                origin_texts, origin_tags = read_ccks_jsonl(os.path.join(args["filename"], "subtask1_training_part1.txt"), "IO" if self.config.name.endswith('io') else "BIO")
+                a, b = read_ccks_jsonl(os.path.join(args["filename"], "subtask1_training_part2.txt"), "IO" if self.config.name.endswith('io') else "BIO")
                 origin_texts.extend(a)
                 origin_tags.extend(b)
             else:
-                origin_texts, origin_tags = read_ccks_jsonl(os.path.join(args["filename"], "subtask1_test_set_with_answer.json"))
-
+                origin_texts, origin_tags = read_ccks_jsonl(os.path.join(args["filename"], "subtask1_test_set_with_answer.json"), "IO" if self.config.name.endswith('io') else "BIO")
         else:
             raise RuntimeError(f"Unresolved dataset {self.config.name}")
-        
-        if self.config.name.endswith("base"):
-            s = 0
-            for pair in zip(origin_texts, origin_tags):
-                yield s, {
-                    "tokens" : pair[0],
-                    "tags" : pair[1]
-                }
-                s += len(pair[0])
+
+        s = 0
+        for pair in zip(origin_texts, origin_tags):
+            yield s, {
+                "tokens" : pair[0],
+                "tags" : pair[1]
+            }
+            s += len(pair[0])

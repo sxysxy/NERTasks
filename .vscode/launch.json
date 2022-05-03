@@ -51,8 +51,9 @@
             "program": "prompt_engineering.py",
             "console": "integratedTerminal",
             "args": [
-                "--dataset", "conll2003",
-                "--model", "BERT-Prompt"
+                "--dataset", "ccks2019",
+                "--model", "BERT-Prompt",
+                "--bert_name_or_path", "bert-base-chinese"
             ]
         }
     ]

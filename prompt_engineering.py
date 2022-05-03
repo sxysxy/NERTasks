@@ -3,7 +3,7 @@
 # License: LGPL-v3
 # 实现Template-free prompt ner 的一些工作
 
-from myutils import Configs, auto_get_bert_name_or_path, auto_get_dataset, auto_get_tag_names, dataset_map_raw2ner, get_base_dirname
+from myutils import Configs, auto_get_bert_name_or_path, auto_get_dataset, auto_get_tag_names, dataset_map_raw2ner, get_base_dirname, NERDatasetsConfigs, get_datasets
 from transformers import BertForMaskedLM, BertTokenizer
 import torch
 import os
@@ -14,31 +14,39 @@ if __name__ == "__main__":
     config = Configs.parse_from_argv()
     if config.model_name != "BERT-Prompt":
         print(f"Ignored model_name = {config.model_name}")
+        config.model_name = "BERT-Prompt"
     
-    tag_names = auto_get_tag_names(config)
+    tag_names = NERDatasetsConfigs.configs[config.dataset_name]["tag_names"]
     tag_name_map = dict()
+    for tag in tag_names:
+        tag_name_map[tag] = set()
 
-    train_dataset = auto_get_dataset(config)["train"]
+    train_dataset = get_datasets(f"{config.dataset_name}-base")["train"]
     for text, tag_ in zip(train_dataset["tokens"], train_dataset["tags"]):
         tag = [tag_names[t] for t in tag_]
         for c, t in zip(text, tag):
-            if t == 'O':
-                continue
-           # t2 = t[2:]
-            t2 = t
-            if t2 in tag_name_map:
-                if c in tag_name_map[t2]:
-                    tag_name_map[t2][c] += 1
-                else:
-                    tag_name_map[t2][c] = 1
-            else:
-                tag_name_map[t2] = {c : 1}
+            tag_name_map[t].add(c)
+
+    # for text, tag_ in zip(train_dataset["tokens"], train_dataset["tags"]):
+    #     tag = [tag_names[t] for t in tag_]
+    #     for c, t in zip(text, tag):
+    #         if t == 'O':
+    #             continue
+    #        # t2 = t[2:]
+    #         t2 = t
+    #         if t2 in tag_name_map:
+    #             if c in tag_name_map[t2]:
+    #                 tag_name_map[t2][c] += 1
+    #             else:
+    #                 tag_name_map[t2][c] = 1
+    #         else:
+    #             tag_name_map[t2] = {c : 1}
     
-    data_search_results = {}
-    for tag in tag_name_map:
-        x = list(zip(tag_name_map[tag].values(), tag_name_map[tag].keys()))
-        x = sorted(x, reverse=True)
-        data_search_results[tag] = x
+    # data_search_results = {}
+    # for tag in tag_name_map:
+    #     x = list(zip(tag_name_map[tag].values(), tag_name_map[tag].keys()))
+    #     x = sorted(x, reverse=True)
+    #     data_search_results[tag] = x
     
     model_name = config.bert_name_or_path
     if os.path.exists(f"{get_base_dirname()}/assets/pretrained_models/{model_name}"):
@@ -59,14 +67,14 @@ if __name__ == "__main__":
        # virtual_token = f"[{tag}]"
         virtual_token = tag
 
-        for cnt, w in data_search_results[tag]:
-            ids = tokenizer(w, add_special_tokens=False, is_split_into_words=True, return_attention_mask=False, return_token_type_ids=False)['input_ids']
-            if len(ids) != 1:
-                continue
-            virtual_embeds.append(bert_embed[ids[0]].unsqueeze(0))
-            if len(virtual_embeds) > MAX_VIRTUAL_AVERAGE_COUNT:
-                break
-        '''
+        # for cnt, w in data_search_results[tag]:
+        #     ids = tokenizer(w, add_special_tokens=False, is_split_into_words=True, return_attention_mask=False, return_token_type_ids=False)['input_ids']
+        #     if len(ids) != 1:
+        #         continue
+        #     virtual_embeds.append(bert_embed[ids[0]].unsqueeze(0))
+        #     if len(virtual_embeds) > MAX_VIRTUAL_AVERAGE_COUNT:
+        #         break
+        
         for w in tag_name_map[tag]:
             ids = tokenizer(w, add_special_tokens=False, is_split_into_words=True, return_attention_mask=False, return_token_type_ids=False)['input_ids']
             if len(ids) != 1:
@@ -74,9 +82,9 @@ if __name__ == "__main__":
             if ids[0] in special_tokens_ids:
                 continue
             virtual_embeds.append(bert_embed[ids[0]].unsqueeze(0))
-            if len(virtual_embeds) > MAX_VIRTUAL_AVERAGE_COUNT:
-                break
-        '''
+            #if len(virtual_embeds) > MAX_VIRTUAL_AVERAGE_COUNT:
+            #    break
+        
         if len(virtual_embeds) == 0:
             raise RuntimeError(f"Can't generate virtual word for {tag}")
         virtual_embeds = torch.cat(virtual_embeds, dim=0)
@@ -110,21 +118,21 @@ if __name__ == "__main__":
 
 
     ##------- transitions --------
-    trans = torch.zeros(len(tag_names) + 2, len(tag_names) + 2, dtype=float, device='cpu')
-    start_tag_id = len(tag_names)
-    end_tag_id = len(tag_names) + 1
-    trans_cnt = 0
-    for tags in train_dataset["tags"]:
-        trans[start_tag_id, tags[0]] += 1
-        trans_cnt += 1
-        l = len(tags)
-        for i in range(l-1):
-            trans[tags[i], tags[i+1]] += 1
-            trans_cnt += 1
-        trans[tags[l-1], end_tag_id] += 1
-        trans_cnt += 1
-    trans /= trans_cnt
-    torch.save(trans, f"{get_base_dirname()}/assets/pretrained_models/{config.dataset_name}-transitions.bin")
+    # trans = torch.zeros(len(tag_names) + 2, len(tag_names) + 2, dtype=float, device='cpu')
+    # start_tag_id = len(tag_names)
+    # end_tag_id = len(tag_names) + 1
+    # trans_cnt = 0
+    # for tags in train_dataset["tags"]:
+    #     trans[start_tag_id, tags[0]] += 1
+    #     trans_cnt += 1
+    #     l = len(tags)
+    #     for i in range(l-1):
+    #         trans[tags[i], tags[i+1]] += 1
+    #         trans_cnt += 1
+    #     trans[tags[l-1], end_tag_id] += 1
+    #     trans_cnt += 1
+    # trans /= trans_cnt
+    # torch.save(trans, f"{get_base_dirname()}/assets/pretrained_models/{config.dataset_name}-transitions.bin")
             
 
 

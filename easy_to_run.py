@@ -2,14 +2,16 @@ import os
 import sys
 
 label_smooth_factor = -1
-ner_epoches = 30
+ner_epoches = 12
 batch_size = 1
 grad_acc = 32
 lstm_layers = 2
 lstm_hidden_size = 256
-few_shot = 0.01
+#few_shot = 0.01
 few_shot_seed = 11451419198
-bert = "medbert-base-chinese"
+#bert = "medbert-base-chinese"
+few_shot = -1
+bert = None #Auto
 
 
 argv = sys.argv[1:]

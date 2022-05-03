@@ -201,8 +201,8 @@ Learning Rates:
     <td>0.8873846891098599</td>
     <td>130.85s</td></tr>
 <tr><td>BERT(Prompt)</td>
-    <td>0.8803649678852272</td>
-    <td>106.42s</td></tr>
+    <td>0.9230769230769231</td>
+    <td>99.70s</td></tr>
 
 <tr><td rowspan="7">OntoNotes5(Chinese)</td><td>BiLSTM-Linear</td>
     <td>0.637999350438454</td>
@@ -234,8 +234,8 @@ Learning Rates:
     <td>0.8119778310861113</td>
     <td>98.10s</td></tr>
     <td>BERT-Prompt</td>
-    <td>0.7640559783943041</td>
-    <td>39.71s</td></tr>
+    <td>0.7642262895174708</td>
+    <td>39.58s</td></tr>
 
 </tbody>
 </thead>

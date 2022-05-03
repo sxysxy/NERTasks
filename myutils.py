@@ -395,18 +395,24 @@ class NERDatasetsConfigs:
     with open(f"{get_base_dirname()}/assets/ner_datasets_configs.json") as f:
         configs = json.load(f)
 
+def map_tagname_bio2io(tag_names):
+    ios = set()
+    for tag in tag_names:
+        ios.add(f"I-{tag[2:]}" if tag != 'O' else tag)
+    return list(ios) 
+
 def auto_get_tag_names(config : Configs):
-   return NERDatasetsConfigs.configs[config.dataset_name]["tag_names"]
+    bio = NERDatasetsConfigs.configs[config.dataset_name]["tag_names"]
+    if config.using_prompt:
+       return map_tagname_bio2io(bio)
+    else:
+        return bio
 
 def auto_get_dataset(config : Configs):
-    if config.dataset_name == "conll2003":
-        return get_datasets("conll2003-base")
-    elif config.dataset_name == "ontonotes5":
-        return get_datasets("ontonotes5-base")
-    elif config.dataset_name == "ccks2019":
-        return get_datasets("ccks2019-base")
-    else:
-        raise RuntimeError(f"Can't get dataset {config.dataset_name}")
+    ds_name = config.dataset_name
+    ds_config = "io" if config.using_prompt else "base"
+   # ds_config = 'base'
+    return get_datasets(f"{ds_name}-{ds_config}")
 
 def auto_get_bert_name_or_path(config : Configs):
     bert = config.bert_name_or_path
