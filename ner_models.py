@@ -3,6 +3,7 @@
 # License: LGPL-v3
 # NER模型（们）：BiLSTM-Linear, BiLSTM-Linear-CRF, BERT-BiLSTM-Linear-CRF, BERT(Prompt)
  
+from base64 import decode
 from turtle import forward
 import torch
 import torch.nn as nn
@@ -283,5 +284,24 @@ class NER_BERT_Prompt(INERModel):
         ]
 
         
+# class NER_BERT_Prompt2(NER_BERT_Prompt):
+#     def __init__(self, bert_model, tag_names, transitions):
+#         super().__init__(bert_model, tag_names)
+#         self.crf = CRFLayer(len(tag_names), required_grad=False)
+#         self.crf.init_transitions(transitions, require_grad=False)
+        
+#     def decode(self, **X):
+#         logits = self.forward(**X)['logits'].squeeze(0)[1:-1, :]
+#         result = torch.argmax(F.softmax(logits, dim=-1), dim=-1).tolist()
+#         crf_input = []
+
+#         for j in len(result):
+#             word = self.tokenizer.decode(result[j])
+#             if word in self.tag_names:
+#                 crf_input.append(logits[j])
+#             else:
+#                 crf_input.append()
+#         return self.crf.decode(crf_input)
 
 
+    

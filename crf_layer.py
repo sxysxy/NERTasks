@@ -25,11 +25,11 @@ def batch_log_sum_exp(vec):
     return max_score + torch.log(torch.sum(torch.exp(vec - max_score_broadcast), dim=1))
 
 class CRFLayer(nn.Module):
-    def __init__(self, tag_size) -> None:
+    def __init__(self, tag_size, required_grad = True) -> None:
         super().__init__()
         #设trans[i,j]表示从标签j到标签i的转移分数
         #相比于“从i到j”的意义，可以省去N个转置操作或者列切片操作（行优先存储的话列切片慢一点点？），速度更快
-        self.trans = nn.Parameter(torch.zeros(tag_size + 2, tag_size + 2, dtype=float), requires_grad=True)
+        self.trans = nn.Parameter(torch.zeros(tag_size + 2, tag_size + 2, dtype=float), requires_grad=required_grad)
         self.start_tag_id = tag_size 
         self.end_tag_id = tag_size + 1
         self.trans.data[self.start_tag_id, :] = -10000.0    #任意标签转移到START_TAG，分数-10000
@@ -92,3 +92,7 @@ class CRFLayer(nn.Module):
             path.reverse()
             return path
             #return np.array(path, dtype=int) 
+
+    def init_transitions(self, trans : torch.Tensor, require_grad=True):
+        self.trans = nn.Parameter(trans, requires_grad=require_grad)
+    

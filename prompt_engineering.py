@@ -3,34 +3,12 @@
 # License: LGPL-v3
 # 实现Template-free prompt ner 的一些工作
 
-from lib2to3.pgen2 import token
 from myutils import Configs, auto_get_bert_name_or_path, auto_get_dataset, auto_get_tag_names, dataset_map_raw2ner, get_base_dirname
 from transformers import BertForMaskedLM, BertTokenizer
-import numpy as np
 import torch
 import os
 
 MAX_VIRTUAL_AVERAGE_COUNT = 5
-
-class WordWithFreq:
-    def __init__(self, w) -> None:
-        self.word = w
-        self.count = 1
-    
-    def __hash__(self):
-        return hash(self.word)
-
-    def __eq__(self, __o) -> bool:
-        if isinstance(__o, WordWithFreq):
-            return self.word == __o.word
-        elif isinstance(__o, str):
-            return self.word == __o
-
-    def __lt__(self, o):
-        return self.count > o.count
-
-    def add(self):
-        self.count += 1
 
 if __name__ == "__main__":
     config = Configs.parse_from_argv()
@@ -129,6 +107,27 @@ if __name__ == "__main__":
     save_model_path = f"{get_base_dirname()}/assets/pretrained_models/{os.path.split( config.bert_name_or_path )[-1]}-{config.dataset_name}-prompt"
     bert.save_pretrained(save_model_path)
     tokenizer.save_pretrained(save_model_path)
+
+
+    ##------- transitions --------
+    trans = torch.zeros(len(tag_names) + 2, len(tag_names) + 2, dtype=float, device='cpu')
+    start_tag_id = len(tag_names)
+    end_tag_id = len(tag_names) + 1
+    trans_cnt = 0
+    for tags in train_dataset["tags"]:
+        trans[start_tag_id, tags[0]] += 1
+        trans_cnt += 1
+        l = len(tags)
+        for i in range(l-1):
+            trans[tags[i], tags[i+1]] += 1
+            trans_cnt += 1
+        trans[tags[l-1], end_tag_id] += 1
+        trans_cnt += 1
+    trans /= trans_cnt
+    torch.save(trans, f"{get_base_dirname()}/assets/pretrained_models/{config.dataset_name}-transitions.bin")
+            
+
+
 
 
 
