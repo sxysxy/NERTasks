@@ -246,7 +246,7 @@ Learning Rates:
 
 ### Few Shot Results
 
-Sampling 1% data in trainset by fixed random seed.
+Sampling <b>1%</b> data in trainset by fixed random seed. They used <b>the same hyper parameters</b> in full data experiments.
 
 <b>Few Shot Test on CoNLL2003:</b>
 
@@ -264,7 +264,9 @@ Sampled 69 samples(total 6973). Here list the number of entities in few shot dat
 <tbody>
 <tr><td>BERT-Linear</td><td>0.6778304852260387</td></tr>
 <tr><td>BERT-Linear-CRF</td><td>0.6773130256876562</tr>
-<tr><td>BERT-Prompt</td><td><b>0.7524185216492908</b></td><tr>
+<tr><td>BERT-Prompt</td><td><b>0.7524185216492908</b></td></tr>
+<tr><td>BERT-BiLSTM-Linear</td><td>0.037065541975802724</td></tr>
+<tr><td>BERT-BiLSTM-Linear-CRF</td><td>0.029508301201363885</td></tr>
 </tbody>
 </table>
 
