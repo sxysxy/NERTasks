@@ -205,7 +205,7 @@ General datasets(ConLL2003, OntoNotes5(Chinese)).
     <td>0.6949365863103882</td>
     <td>44.07s</td></tr>
 <tr><td>BERT-Linear</td>
-    <td>0.8983771483322356</td>
+    <td><b>0.8983771483322356</b></td>
     <td>81.81s</td></tr>
 <tr><td>BERT-Linear-CRF</td>
     <td>0.8977943835121128</td>
@@ -267,16 +267,16 @@ Medical datasets, used general bert and medical bert.
 
 <tr><td rowspan="6">NCBI-disease</td>
     <td rowspan="3">bert-<br>base-<br>uncased</td>
-    <td>BERT-Linear</td><td></td></tr>
-<tr><td>BERT-Linear-CRF</td><td><b></b></td></tr>
-<tr><td>BERT-Prompt</td><td></td></tr>
+    <td>BERT-Linear</td><td>0.8720903433970961</td></tr>
+<tr><td>BERT-Linear-CRF</td><td><b>0.8778661675245673</b></td></tr>
+<tr><td>BERT-Prompt</td><td>0.8319672131147542</td></tr>
 <tr><td rowspan="3">
 biobert-base-<br>cased-v1.2<br></td>
-    <td>BERT-Linear</td><td></td>
+    <td>BERT-Linear</td><td>0.8730125079499682</td>
     </tr>
-<tr><td>BERT-Linear-CRF</td><td></td>
+<tr><td>BERT-Linear-CRF</td><td><b>0.8774603174603175</b></td>
     </tr>
-<tr><td>BERT-Prompt</td><td></td>
+<tr><td>BERT-Prompt</td><td>0.8549382716049383</td>
     </tr>
 
 </tbody>
