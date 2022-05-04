@@ -36,17 +36,17 @@ It implements:
     <tr><td>BERT-BiLSTM-Linear</td><td></td></tr>
     <tr><td>BERT-BiLSTM-Linear-CRF</td><td></td></tr>
     <tr><td>BERT(Prompt)<br>EntLM Approach</td><td><a href="https://arxiv.org/abs/2109.13532">Template-free Prompt Tuning for Few-shot NER</a></td></tr>
-<tr><td rowspan="4">Datasets</td></tr>
+<tr><td rowspan="5">Datasets</td></tr>
     <tr><td>CoNLL2003</td><td><a href="https://github.com/yuanxiaosc/BERT-for-Sequence-Labeling-and-Text-Classification/tree/master/data/CoNLL2003_NER">
 yuanxiaosc/BERT-for-Sequence-Labeling-and-Text-Classification</a></td></tr>
     <tr><td>OntoNotes5</td><td><a href="https://catalog.ldc.upenn.edu/LDC2013T19">LDC2013T19</a></td></tr>
-    <tr><td>CCKS2019 Subtask 1</td><td><a href="https://tianchi.aliyun.com/dataset/dataDetail?dataId=92085">TIANCHI</a></td></tr>
-<tr><td rowspan="4">Traning Trick</td></tr>
+    <tr><td>CCKS2019 Subtask 1</td><td><a href="https://tianchi.aliyun.com/dataset/dataDetail?dataId=92085">TIANCHI</a> (NER on Chinese medical documents.)</td></tr>
+    <tr><td>NCBI-disease + s800</td><td><a href="https://github.com/dmis-lab/biobert">BioBERT</a> (NER on English medical doucments, Got these datasets from its download.sh)</td></tr>
+<tr><td rowspan="3">Traning Tricks</td></tr>
     <tr><td>Gradient Accumulation</td><td></td></tr>
     <tr><td>Learning Rate Warmup</td><td></td></tr>
-    <tr><td>Label Smooth</td><td></td></tr>
 <tr><td rowspan="3">Misc</td></tr>
-    <tr><td>Tokenizer from datasets</td><td></td></tr>
+    <tr><td>Tokenizer from datasets</td><td>See myutils.py</td></tr>
     <tr><td>NER Metrics</td><td><a href="https://github.com/chakki-works/seqeval">seqeval: A Python framework for sequence labeling evaluation</a></td></tr>
 </tbody>
 </table>
@@ -93,11 +93,10 @@ For some reason(copyright and some other things), I can't directly provide datas
 <thead>
 <tr>
     <td>Optimizer</td>
-    <td>Weight Decay</td> 
-    <td>Warmup Ratio</td> 
-    <td>Label Smoothing</td> 
+    <td>Weight <br>Decay</td> 
+    <td>Warmup <br>Ratio</td> 
     <td>Batch Size</td> 
-    <td>Gradient Accumulation</td> 
+    <td>Gradient <br>Accumulation</td> 
     <td>Clip Grad Norm</td>
     <td>Total Epoches</td>
     <td>Random Seed</td>
@@ -108,11 +107,11 @@ For some reason(copyright and some other things), I can't directly provide datas
     <td>AdamW</td>
     <td>5e-3</td>
     <td>0.2</td>
-    <td>None</td>
     <td>1</td>
     <td>32</td>
     <td>1.0</td>
-    <td>12</td>
+    <td>12(full data)<br>
+        30(few shot)</td>
     <td>233</td>
 </tr>
 </tbody>
@@ -126,27 +125,29 @@ Learning Rates:
     <td>CoNLL2003</td>
     <td>OntoNotes5</td>
     <td>CCKS2019</td>
+    <td>NCBI-disease+s800</td>
     </tr>
 </thead>
 <tbody>
 <tr><td>BiLSTM-Linear</td></td>
     <td colspan="2" rowspan="2">0.001</td>
-    <td rowspan="2">NA</td>
+    <td colspan="2" rowspan="2">NA</td>
     </tr>
 <tr><td>BiLSTM-Linear-CRF</td></tr>
 <tr><td>BERT-Linear</td>
-    <td colspan="3" rowspan="2">0.0001</td></tr>
+    <td colspan="4" rowspan="2">0.0001</td></tr>
 <tr><td>BERT-Linear-CRF</td></tr>
 <tr><td>BERT-BiLSTM-Linear</td>
     <td rowspan="3">0.0001</td>
     <td>3e-5</td>
-    <td rowspan="2">NA</td>
+    <td colspan="2" rowspan="2">NA</td>
     </tr>
     <tr><td>BERT-BiLSTM-Linear-CRF</td>
     <td>1e-5</td></tr>
     <tr><td>BERT(Prompt)</td>
     <td>3e-5</td>
-    <td>0.0001</td></tr>
+    <td colspan="2" >0.0001</td></tr>
+
 </tbody>
 </table>
 
@@ -159,7 +160,7 @@ Learning Rates:
 <tr><td>BERT Model</td> <td>Embedding Size(For models without BERT)</td> <td> LSTM Hidden Size </td> <td> LSTM Layers </td> </tr>
 </thead>
 <tbody>
-<tr><td> bert-base-uncased(CoNLL2003) </td> <td rowspan="2"> 256 </td> <td rowspan="2"> 256 </td> <td rowspan="2"> 2 </td></tr>
+<tr><td> bert-base-uncased(CoNLL2003,NCBI-disease+s800) </td> <td rowspan="2"> 256 </td> <td rowspan="2"> 256 </td> <td rowspan="2"> 2 </td></tr>
 <tr><td>bert-base-chinese(OntoNotes5,CCKS2019)</td></tr>
 </tbody>
 </table>
@@ -171,6 +172,8 @@ Learning Rates:
 <p id="4_3_1"></p>
 
 ### Full Data Results
+
+General datasets(ConLL2003, OntoNotes5(Chinese)).
 
 <table>
 <thead>
@@ -205,7 +208,7 @@ Learning Rates:
     <td><b>0.9230769230769231</b></td>
     <td>99.70s</td></tr>
 
-<tr><td rowspan="7">OntoNotes5(Chinese)</td><td>BiLSTM-Linear</td>
+<tr><td rowspan="7">OntoNotes5<br>(Chinese)</td><td>BiLSTM-Linear</td>
     <td>0.637999350438454</td>
     <td>160.55s</td></tr>
 <tr><td>BiLSTM-Linear-CRF</td>
@@ -227,19 +230,45 @@ Learning Rates:
     <td>0.7376454875023851</td>
     <td>485.56s</td></tr>
 
-<tr><td rowspan="3">CCKS2019 Subtask1
-    <td>BERT-Linear</td>
-    <td>0.8057400574005741</td>
-    <td>35.05s</td></tr>
-    <td>BERT-Linear-CRF</td>
-    <td><b>0.8119778310861113</b></td>
-    <td>98.10s</td></tr>
-    <td>BERT-Prompt</td>
-    <td>0.7684884784959654</td>
-    <td>39.58s</td></tr>
-
 </tbody>
 </thead>
+</table>
+
+Medical datasets, used general bert and medical bert.
+
+<table>
+<thead>
+<tr><td>Dataset</td><td>BERT</td><td>Model</td><td>Overall Span-Based Micro F1</td><td>Average Training Time Per Epoch<br>(On a Quadro RTX 8000)</td></tr>
+</thead>
+<tbody>
+<tr><td rowspan="6">CCKS2019<br>Subtask1</td>
+    <td rowspan="3">bert-<br>base-<br>chinese</td>
+    <td>BERT-Linear</td><td>0.8057400574005741</td><td>35.05s</td></tr>
+<tr><td>BERT-Linear-CRF</td><td><b>0.8119778310861113</b></td><td>98.10s</td></tr>
+<tr><td>BERT-Prompt</td><td>0.7684884784959654</td><td>39.58s</td></tr>
+<tr><td rowspan="3">medbert-<br>base-<br>chinese</td>
+    <td>BERT-Linear</td><td></td><td></td>
+    </tr>
+<tr><td>BERT-Linear</td><td></td><td></td>
+    </tr>
+<tr><td>BERT-Linear</td><td></td><td></td>
+    </tr>
+
+<tr><td rowspan="6">NCBI-disease<br>+s800</td>
+    <td rowspan="3">bert-<br>base-<br>uncased</td>
+    <td>BERT-Linear</td><td>0.733399971440811</td><td>138.49s</td></tr>
+<tr><td>BERT-Linear-CRF</td><td><b>0.7397722479966259</b></td><td>194.00s</td></tr>
+<tr><td>BERT-Prompt</td><td>0.7366034624896949</td><td>156.26s</td></tr>
+<tr><td rowspan="3">
+biobert-base-<br>cased-v1.2<br></td>
+    <td>BERT-Linear</td><td></td><td></td>
+    </tr>
+<tr><td>BERT-Linear</td><td></td><td></td>
+    </tr>
+<tr><td>BERT-Linear</td><td></td><td></td>
+    </tr>
+
+</tbody>
 </table>
 
 <p id="4_3_2"></p>

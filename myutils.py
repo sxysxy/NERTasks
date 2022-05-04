@@ -58,7 +58,7 @@ class Configs:
     @classmethod
     def parse_from(cls, argv):
         ps = argparse.ArgumentParser()
-        ps.add_argument("--dataset", choices=['conll2003', 'ontonotes5', 'ccks2019', 'cmeee'], type=str, required=True, 
+        ps.add_argument("--dataset", choices=['conll2003', 'ontonotes5', 'ccks2019', 'dis_mic'], type=str, required=True, 
                             help="Choose dataset.")
         ps.add_argument("--ner_epoches", type=int, default=10, 
                             help="The number of training epochs on NER Task, default = 10.")
@@ -131,7 +131,7 @@ class Configs:
          "grad_acc", "batch_size", "clip_grad_norm", "ner_lr", "ner_weight_decay",
          "model_name", "bert_name_or_path", "label_smooth_factor", "dropout_ratio",
          "lstm_layers", "lstm_hidden_size", "embedding_size", "random_seed", 
-         "few_shot", "f1"]:
+         "few_shot", "f1", "few_shot_seed"]:
             d[k] = self[k]
         return d
 
