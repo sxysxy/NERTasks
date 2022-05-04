@@ -2,7 +2,8 @@ import os
 import sys
 
 label_smooth_factor = -1
-ner_epoches = 12
+#ner_epoches = 12
+ner_epoches = 20
 #ner_epoches = 30
 batch_size = 1
 grad_acc = 32
@@ -14,8 +15,8 @@ few_shot_seed = 11451419198
 #bert = 'bert-base-chinese'
 few_shot = -1
 bert = None #Auto
-bert = 'biobert-base-cased-v1.2'
-#bert = 'bert-base-uncased'
+#bert = 'biobert-base-cased-v1.2'
+bert = 'bert-base-uncased'
 
 
 argv = sys.argv[1:]

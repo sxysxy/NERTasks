@@ -13,7 +13,6 @@ import argparse
 import pdb
 import copy
 from transformers import AutoTokenizer, AdamW
-from typer import prompt
 from ner_models import (
     NER_BERT_BiLSTM_Linear, NER_BERT_BiLSTM_Linear_CRF, 
     NER_BERT_Linear, NER_BERT_Prompt, NER_BiLSTM_Linear, 
