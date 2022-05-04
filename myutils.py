@@ -57,7 +57,7 @@ class Configs:
     @classmethod
     def parse_from(cls, argv):
         ps = argparse.ArgumentParser()
-        ps.add_argument("--dataset", choices=['conll2003', 'ontonotes5', 'ccks2019', 'dis_mic'], type=str, required=True, 
+        ps.add_argument("--dataset", choices=['conll2003', 'ontonotes5', 'ccks2019', 'ncbi-disease'], type=str, required=True, 
                             help="Choose dataset.")
         ps.add_argument("--ner_epoches", type=int, default=10, 
                             help="The number of training epochs on NER Task, default = 10.")

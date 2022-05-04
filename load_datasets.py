@@ -85,19 +85,18 @@ class AllDatasets(datasets.GeneratorBasedBuilder):
                 "train_url" : f"{assets_path}/raw_datasets/CCKS2019",
                 "test_url" : f"{assets_path}/raw_datasets/CCKS2019"
             }),
-        DatasetConfig(name = "dis_mic-base",
+        DatasetConfig(name = "ncbi-disease-base",
             config = {
                 "tag_names" : ner_datasets_configs["dis_mic"]["tag_names"],
-                "train_url" : f"{assets_path}/raw_datasets/dis_mic",
-                "test_url" : f"{assets_path}/raw_datasets/dis_mic"
+                "train_url" : f"{assets_path}/raw_datasets/NCBI-disease/train.tsv",
+                "test_url" : f"{assets_path}/raw_datasets/NCBI-disease/test.tsv"
             }),
-        DatasetConfig(name = "dis_mic-io",
+        DatasetConfig(name = "ncbi-disease-io",
             config = {
                 "tag_names" : map_tagname_bio2io( ner_datasets_configs["dis_mic"]["tag_names"] ),
-                "train_url" : f"{assets_path}/raw_datasets/dis_mic",
-                "test_url" : f"{assets_path}/raw_datasets/dis_mic"
+                "train_url" : f"{assets_path}/raw_datasets/NCBI-disease/train.tsv",
+                "test_url" : f"{assets_path}/raw_datasets/NCBI-disease/test.tsv"
             }),
- 
     ]
 
     def _info(self):
@@ -212,8 +211,8 @@ class AllDatasets(datasets.GeneratorBasedBuilder):
                 origin_tags.extend(b)
             else:
                 origin_texts, origin_tags = read_ccks_jsonl(os.path.join(args["filename"], "subtask1_test_set_with_answer.json"), "IO" if self.config.name.endswith('io') else "BIO")
-        elif self.config.name.startswith("dis_mic"):
-            def read_tsv(filename, tag_suffix, bio2io = False):
+        elif self.config.name.startswith("ncbi-disease"):
+            def read_tsv(filename, bio2io = False):
                 with open(filename, "r") as f:
                     texts = []
                     tags = []
@@ -233,26 +232,14 @@ class AllDatasets(datasets.GeneratorBasedBuilder):
                             if tt != 'O':
                                 if bio2io:
                                     tt = 'I'
-                                tag.append(f"{tt}-{tag_suffix}")
+                                tag.append(tt)
                             else:
                                 tag.append('O')
                     if len(text) > 0:
                         texts.append(text)
                         tags.append(tag)
                     return texts, tags
-            if args["split"] == "train":
-                dis_file = os.path.join(args["filename"], "NCBI-disease/train.tsv")
-                mic_file = os.path.join(args["filename"], "s800/train.tsv")
-            else:
-                dis_file = os.path.join(args["filename"], "NCBI-disease/test.tsv")
-                mic_file = os.path.join(args["filename"], "s800/test.tsv")
-            tk, tg = read_tsv(dis_file, "dis", self.config.name.endswith("io"))
-            tk2, tg2 = read_tsv(mic_file, "mic", self.config.name.endswith("io"))
-            origin_texts = tk 
-            origin_texts.extend(tk2)
-            origin_tags = tg
-            origin_tags.extend(tg2)
-           # pdb.set_trace()
+            origin_texts, origin_tags = read_tsv(args["filename"], self.config.name.endswith("io"))
         else:
             raise RuntimeError(f"Unresolved dataset {self.config.name}")
 

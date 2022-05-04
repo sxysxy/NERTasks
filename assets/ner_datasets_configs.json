@@ -35,7 +35,7 @@
         ]
     },
 
-    "dis_mic" : {
+    "ncbi-disease" : {
         "default_bert" : "bert-base-uncased",
         "tag_names" : [
             "B-dis", "I-dis", "B-mic", "I-mic", "O"

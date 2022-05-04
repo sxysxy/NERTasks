@@ -41,7 +41,7 @@ It implements:
 yuanxiaosc/BERT-for-Sequence-Labeling-and-Text-Classification</a></td></tr>
     <tr><td>OntoNotes5</td><td><a href="https://catalog.ldc.upenn.edu/LDC2013T19">LDC2013T19</a></td></tr>
     <tr><td>CCKS2019 Subtask 1</td><td><a href="https://tianchi.aliyun.com/dataset/dataDetail?dataId=92085">TIANCHI</a> (NER on Chinese medical documents.)</td></tr>
-    <tr><td>NCBI-disease + s800</td><td><a href="https://github.com/dmis-lab/biobert">BioBERT</a> (NER on English medical doucments, Got these datasets from its download.sh)</td></tr>
+    <tr><td>NCBI-disease</td><td><a href="https://github.com/dmis-lab/biobert">BioBERT</a> (NER on English medical doucments, Got these datasets from its download.sh)</td></tr>
 <tr><td rowspan="3">Traning Tricks</td></tr>
     <tr><td>Gradient Accumulation</td><td></td></tr>
     <tr><td>Learning Rate Warmup</td><td></td></tr>
@@ -125,7 +125,7 @@ Training Epoches:
     </tr>
 <tr><td>OntoNotes5(Chinese)</td></tr>
 <tr><td>CCKS2019</td></tr>
-<tr><td>NCBI-disease+s800</td><td>20</td></tr>
+<tr><td>NCBI-disease</td><td>20</td></tr>
 </body>
 </table>
 
@@ -137,7 +137,7 @@ Learning Rates:
     <td>CoNLL2003</td>
     <td>OntoNotes5</td>
     <td>CCKS2019</td>
-    <td>NCBI-disease+s800</td>
+    <td>NCBI-disease</td>
     </tr>
 </thead>
 <tbody>
@@ -172,7 +172,7 @@ Learning Rates:
 <tr><td>BERT Model</td> <td>Embedding Size(For models without BERT)</td> <td> LSTM Hidden Size </td> <td> LSTM Layers </td> </tr>
 </thead>
 <tbody>
-<tr><td> bert-base-uncased(CoNLL2003,NCBI-disease+s800) </td> <td rowspan="2"> 256 </td> <td rowspan="2"> 256 </td> <td rowspan="2"> 2 </td></tr>
+<tr><td> bert-base-uncased(CoNLL2003,NCBI-disease) </td> <td rowspan="2"> 256 </td> <td rowspan="2"> 256 </td> <td rowspan="2"> 2 </td></tr>
 <tr><td>bert-base-chinese(OntoNotes5,CCKS2019)</td></tr>
 </tbody>
 </table>
@@ -265,9 +265,9 @@ Medical datasets, used general bert and medical bert.
     </tr>
 <tr><td>BERT-Prompt</td><td>0.7933091394485463</td></tr>
 
-<tr><td rowspan="6">NCBI-disease<br>+s800</td>
+<tr><td rowspan="6">NCBI-disease</td>
     <td rowspan="3">bert-<br>base-<br>uncased</td>
-    <td>BERT-Linear</td><td>0.7681962025316457</td></tr>
+    <td>BERT-Linear</td><td></td></tr>
 <tr><td>BERT-Linear-CRF</td><td><b></b></td></tr>
 <tr><td>BERT-Prompt</td><td></td></tr>
 <tr><td rowspan="3">
