@@ -87,13 +87,13 @@ class AllDatasets(datasets.GeneratorBasedBuilder):
             }),
         DatasetConfig(name = "ncbi-disease-base",
             config = {
-                "tag_names" : ner_datasets_configs["dis_mic"]["tag_names"],
+                "tag_names" : ner_datasets_configs["ncbi-disease"]["tag_names"],
                 "train_url" : f"{assets_path}/raw_datasets/NCBI-disease/train.tsv",
                 "test_url" : f"{assets_path}/raw_datasets/NCBI-disease/test.tsv"
             }),
         DatasetConfig(name = "ncbi-disease-io",
             config = {
-                "tag_names" : map_tagname_bio2io( ner_datasets_configs["dis_mic"]["tag_names"] ),
+                "tag_names" : map_tagname_bio2io( ner_datasets_configs["ncbi-disease"]["tag_names"] ),
                 "train_url" : f"{assets_path}/raw_datasets/NCBI-disease/train.tsv",
                 "test_url" : f"{assets_path}/raw_datasets/NCBI-disease/test.tsv"
             }),
@@ -232,7 +232,7 @@ class AllDatasets(datasets.GeneratorBasedBuilder):
                             if tt != 'O':
                                 if bio2io:
                                     tt = 'I'
-                                tag.append(tt)
+                                tag.append(f"{tt}-dis")
                             else:
                                 tag.append('O')
                     if len(text) > 0:
