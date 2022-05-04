@@ -330,6 +330,23 @@ Sampled 10 samples(total 1000). Here list the numbers of entities in few shot da
 </tbody>
 </table>
 
+<b>Few Shot Test on NCBI-disease:</b>
+
+Sampled 54 samples(total about 5400) contains 41 disease entities.
+
+<table>
+<thead>
+<tr><td rowspan="2">Model</td><td colspan="2">Overall Span-Based F1 On Full Testset</td></tr>
+<tr><td>bert-base-uncased</td><td>medbert-base-chinese</td></tr>
+</thead>
+<tbody>
+<tr><td>BERT-Linear</td><td>0.6449976947902258</td><td>0.6617314414970182</td></tr>
+<tr><td>BERT-Linear-CRF</td><td><b>0.6520612485276797</b></td><td><b>0.6777615976700645</b></td></tr>
+<tr><td>BERT-Prompt</td><td>0.5552599758162031</td><td>0.5978593272171254</td><tr>
+</tbody>
+</table>
+
+
 
 <p id="5"> </p>
 
