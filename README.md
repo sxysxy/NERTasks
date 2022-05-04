@@ -272,7 +272,7 @@ Sampled 69 samples(total 6973). Here list the number of entities in few shot dat
 
 <b>Few Shot Test on CCKS2019:</b>
 
-Sampled 10 samples(total 100). Here list the numbers of entities in few shot dataset:
+Sampled 10 samples(total 1000). Here list the numbers of entities in few shot dataset:
 
 ```
 {'手术': 9, '影像检查': 5, '疾病和诊断': 45, '解剖部位': 48, '实验室检验': 19, '药物': 10}
