@@ -259,11 +259,11 @@ Medical datasets, used general bert and medical bert.
 <tr><td>BERT-Linear-CRF</td><td><b>0.8119778310861113</b></td></tr>
 <tr><td>BERT-Prompt</td><td>0.7684884784959654</td></tr>
 <tr><td rowspan="3">medbert-<br>base-<br>chinese</td>
-    <td>BERT-Linear</td><td></td>
+    <td>BERT-Linear</td><td>0.8201214508452324</td>
     </tr>
-<tr><td>BERT-Linear</td><td></td>
+<tr><td>BERT-Linear-CRF</td><td>0.8221622063998691</td>
     </tr>
-<tr><td>BERT-Linear</td><td></td>
+<tr><td>BERT-Prompt</td><td>0.7933091394485463</td>
     </tr>
 
 <tr><td rowspan="6">NCBI-disease<br>+s800</td>

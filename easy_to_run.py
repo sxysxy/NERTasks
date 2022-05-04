@@ -14,9 +14,9 @@ few_shot_seed = 11451419198
 #bert = "medbert-base-chinese"
 #bert = 'bert-base-chinese'
 few_shot = -1
-bert = None #Auto
-#bert = 'biobert-base-cased-v1.2'
-bert = 'bert-base-uncased'
+#bert = None #Auto
+bert = 'biobert-base-cased-v1.2'
+#bert = 'bert-base-uncased'
 
 
 argv = sys.argv[1:]
