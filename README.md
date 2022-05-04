@@ -98,7 +98,6 @@ For some reason(copyright and some other things), I can't directly provide datas
     <td>Batch Size</td> 
     <td>Gradient <br>Accumulation</td> 
     <td>Clip Grad Norm</td>
-    <td>Total Epoches</td>
     <td>Random Seed</td>
     </tr>
 </thead>
@@ -110,11 +109,24 @@ For some reason(copyright and some other things), I can't directly provide datas
     <td>1</td>
     <td>32</td>
     <td>1.0</td>
-    <td>12(full data)<br>
-        30(few shot)</td>
     <td>233</td>
 </tr>
 </tbody>
+</table>
+
+Training Epoches:
+<table>
+<thead>
+<tr><td>Dataset</td><td>Full Data</td><td>Few Shot</td></tr>
+</head>
+<table>
+<tr><td>CoNLL2003</td>
+    <td rowspan="2">12</td> <td rowspan="4">30</td>
+    </tr>
+<tr><td>OntoNotes5(Chinese)</td></tr>
+<tr><td>NCBI-disease+s800</td><td>20</td></tr>
+<tr><td>CCKS2019</td><td>12</td></tr>
+</table>
 </table>
 
 Learning Rates:
@@ -238,34 +250,34 @@ Medical datasets, used general bert and medical bert.
 
 <table>
 <thead>
-<tr><td>Dataset</td><td>BERT</td><td>Model</td><td>Overall Span-Based Micro F1</td><td>Average Training Time Per Epoch<br>(On a Quadro RTX 8000)</td></tr>
+<tr><td>Dataset</td><td>BERT</td><td>Model</td><td>Overall Span-Based Micro F1</td></tr>
 </thead>
 <tbody>
 <tr><td rowspan="6">CCKS2019<br>Subtask1</td>
     <td rowspan="3">bert-<br>base-<br>chinese</td>
-    <td>BERT-Linear</td><td>0.8057400574005741</td><td>35.05s</td></tr>
-<tr><td>BERT-Linear-CRF</td><td><b>0.8119778310861113</b></td><td>98.10s</td></tr>
-<tr><td>BERT-Prompt</td><td>0.7684884784959654</td><td>39.58s</td></tr>
+    <td>BERT-Linear</td><td>0.8057400574005741</td></tr>
+<tr><td>BERT-Linear-CRF</td><td><b>0.8119778310861113</b></td></tr>
+<tr><td>BERT-Prompt</td><td>0.7684884784959654</td></tr>
 <tr><td rowspan="3">medbert-<br>base-<br>chinese</td>
-    <td>BERT-Linear</td><td></td><td></td>
+    <td>BERT-Linear</td><td></td>
     </tr>
-<tr><td>BERT-Linear</td><td></td><td></td>
+<tr><td>BERT-Linear</td><td></td>
     </tr>
-<tr><td>BERT-Linear</td><td></td><td></td>
+<tr><td>BERT-Linear</td><td></td>
     </tr>
 
 <tr><td rowspan="6">NCBI-disease<br>+s800</td>
     <td rowspan="3">bert-<br>base-<br>uncased</td>
-    <td>BERT-Linear</td><td>0.733399971440811</td><td>138.49s</td></tr>
-<tr><td>BERT-Linear-CRF</td><td><b>0.7397722479966259</b></td><td>194.00s</td></tr>
-<tr><td>BERT-Prompt</td><td>0.7366034624896949</td><td>156.26s</td></tr>
+    <td>BERT-Linear</td><td></td></tr>
+<tr><td>BERT-Linear-CRF</td><td><b></b></td><</tr>
+<tr><td>BERT-Prompt</td><td></td>/tr>
 <tr><td rowspan="3">
 biobert-base-<br>cased-v1.2<br></td>
-    <td>BERT-Linear</td><td></td><td></td>
+    <td>BERT-Linear</td><td></td>
     </tr>
-<tr><td>BERT-Linear</td><td></td><td></td>
+<tr><td>BERT-Linear</td><td></td>
     </tr>
-<tr><td>BERT-Linear</td><td></td><td></td>
+<tr><td>BERT-Linear</td><td></td>
     </tr>
 
 </tbody>
