@@ -261,23 +261,22 @@ Medical datasets, used general bert and medical bert.
 <tr><td rowspan="3">medbert-<br>base-<br>chinese</td>
     <td>BERT-Linear</td><td>0.8201214508452324</td>
     </tr>
-<tr><td>BERT-Linear-CRF</td><td>0.8221622063998691</td>
+<tr><td>BERT-Linear-CRF</td><td><b>0.8221622063998691</b></td>
     </tr>
-<tr><td>BERT-Prompt</td><td>0.7933091394485463</td>
-    </tr>
+<tr><td>BERT-Prompt</td><td>0.7933091394485463</td></tr>
 
 <tr><td rowspan="6">NCBI-disease<br>+s800</td>
     <td rowspan="3">bert-<br>base-<br>uncased</td>
-    <td>BERT-Linear</td><td></td></tr>
-<tr><td>BERT-Linear-CRF</td><td><b></b></td><</tr>
+    <td>BERT-Linear</td><td>0.7681962025316457</td></tr>
+<tr><td>BERT-Linear-CRF</td><td><b></b></td></tr>
 <tr><td>BERT-Prompt</td><td></td></tr>
 <tr><td rowspan="3">
 biobert-base-<br>cased-v1.2<br></td>
     <td>BERT-Linear</td><td></td>
     </tr>
-<tr><td>BERT-Linear</td><td></td>
+<tr><td>BERT-Linear-CRF</td><td></td>
     </tr>
-<tr><td>BERT-Linear</td><td></td>
+<tr><td>BERT-Prompt</td><td></td>
     </tr>
 
 </tbody>
