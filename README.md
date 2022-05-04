@@ -121,11 +121,11 @@ Training Epoches:
 </head>
 <tbody>
 <tr><td>CoNLL2003</td>
-    <td rowspan="2">12</td> <td rowspan="4">30</td>
+    <td rowspan="3">12</td> <td rowspan="4">30</td>
     </tr>
 <tr><td>OntoNotes5(Chinese)</td></tr>
+<tr><td>CCKS2019</td></tr>
 <tr><td>NCBI-disease+s800</td><td>20</td></tr>
-<tr><td>CCKS2019</td><td>12</td></tr>
 </body>
 </table>
 
@@ -270,7 +270,7 @@ Medical datasets, used general bert and medical bert.
     <td rowspan="3">bert-<br>base-<br>uncased</td>
     <td>BERT-Linear</td><td></td></tr>
 <tr><td>BERT-Linear-CRF</td><td><b></b></td><</tr>
-<tr><td>BERT-Prompt</td><td></td>/tr>
+<tr><td>BERT-Prompt</td><td></td></tr>
 <tr><td rowspan="3">
 biobert-base-<br>cased-v1.2<br></td>
     <td>BERT-Linear</td><td></td>
