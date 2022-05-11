@@ -5,10 +5,11 @@
 
 
 import random
+from matplotlib.cbook import ls_mapper
 from transformers import set_seed
 from myutils import (Configs, 
     auto_create_model, auto_get_dataset, auto_get_tag_names, 
-    auto_get_tokenizer, dataset_map_raw2ner, dataset_map_raw2prompt, 
+    auto_get_tokenizer, dataset_map_raw2ner, dataset_map_raw2prompt, get_base_dirname, 
     get_ner_evaluation
 )
 from mytrainer import NERTrainer
@@ -97,7 +98,25 @@ def main():
             print(metrics_data)
             return metrics_data
         
-    all_metrics = trainer.train(config.ner_epoches, DataLoader(ner_dataset["train"], batch_size=config.batch_size, pin_memory=True), eval_function)
+    class EvalFunctionHook:
+        def __init__(self) -> None:
+            self.best_f1 = 0
+        def __call__(self, metric_data : dict):
+            m = eval_function(metric_data)
+            if not config.save_model:
+                return m
+            f1 = m["f1"]
+            if f1 > self.best_f1:
+                savep = f"{get_base_dirname()}/results/{config.dataset_name}-{config.model_name}"
+                os.makedirs(savep, mode=0o755, exist_ok=True)
+                tokenizer.save_pretrained(savep)
+                torch.save(model, os.path.join(savep, "model.bin"))
+                self.best_f1 = f1
+            return m
+            
+    evaluator = EvalFunctionHook()
+        
+    all_metrics = trainer.train(config.ner_epoches, DataLoader(ner_dataset["train"], batch_size=config.batch_size, pin_memory=True), evaluator)
     all_metrics["config"] = config.__dict__
     best_f1 = 0
     for m in all_metrics["metrics_each_epoch"]:

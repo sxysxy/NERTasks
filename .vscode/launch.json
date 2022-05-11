@@ -48,10 +48,10 @@
             "name" : "PromptEngineering",
             "type": "python",
             "request": "launch",
-            "program": "prompt_engineering.py",
+            "program": "prompt_engineering3.py",
             "console": "integratedTerminal",
             "args": [
-                "--dataset", "ccks2019",
+                "--dataset", "conll2003",
                 "--model", "BERT-Prompt",
                 "--bert_name_or_path", "bert-base-chinese"
             ]
