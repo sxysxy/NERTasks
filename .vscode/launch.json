@@ -21,7 +21,8 @@
             "program": "main.py",
             "console": "integratedTerminal",
             "args": [
-                "--dataset", "ccks2019",
+               // "--dataset", "ccks2019",
+                  "--dataset", "ncbi-disease",
               //  "--dataset", "conll2003",
               //  "--model", "BERT-Prompt",
               //  "--model", "BERT-BiLSTM-Linear",
@@ -41,7 +42,8 @@
                 "--lstm_layers", "2",
                 "--lstm_hidden_size", "256",
                 "--batch_size", "1",
-                "--grad_acc", "32"
+                "--grad_acc", "32",
+                "--small_data", "True"
             ]
         },
         {

@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <head><script src="https://cdn.staticfile.org/jquery/1.10.2/jquery.min.js"></script>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.css">
+        <script src="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.js"></script>
+    
+    </head>
+    <body>
+        <div class="ui main container" style="margin-top: 1em;">
+            <div class="ui grid">
+                <div class="ui sixteen wide column">
+                    <div class="ui top block attached header">
+                        医学术语抽取系统 by 石响宇
+                    </div>
+                    <div class="ui bottom attached segment">
+                        <div class="ui selection dropdown two wide column">
+                            数据库
+                            <div id="dataset_name" class="text">CCKS2019</div>
+                            <i class="dropdown icon"></i>
+                            <div class="menu">
+                                <div class="item">CCKS2019</div>
+                                <div class="item">NCBI-disease</div>
+                            </div>
+                        </div>
+
+                        <div class="ui selection dropdown three wide column" style="width: 25%;">
+                            术语抽取模型
+                            <div id="model_name" class="text">BERT-Linear-CRF</div>
+                            <i class="dropdown icon"></i>
+                            <div class="menu">
+                                <div class="item">BERT-Linear-CRF</div>
+                                <div class="item">BERT-Linear</div>
+                                <div class="item">BERT-Prompt</div>
+                            </div>
+                        </div>
+
+                        <div class="ui eleven wide column" style="display: inline-block;"></div>
+                        <button class="ui two wide column button" style="display: inline-block; " onclick="req_sample()">来一个样例</button>
+                        <div class="ui form" style="margin-top: 3px; margin-bottom: 2px;">
+                            <div class="field">
+                                <textarea id="text"></textarea>
+                            </div>
+                        </div>
+                        <button class="ui fluid primary button" onclick="req_ner()">试试看</button>
+                        <div id="result" style="margin-top: 2px;">
+
+                        </div>
+                    </div>
+                   
+                </div>
+
+            </div>
+        </div>
+ 
+        <script type="text/javascript">
+            document.color_map = {
+                "dis" : "red",
+                "疾病和诊断" : "red",
+                "药物" : "blue",
+                "影像检查" : "chartreuse",
+                "实验室检验" : "blueviolet",
+                "解剖部位" : "darksalmon",
+                "手术" : "darkcyan"
+            }
+        </script>
+
+        <script type="text/javascript">
+            $(".ui.dropdown").dropdown({
+                on:'hover' ,//鼠标悬浮显示，默认值是click
+                transition:'fade', //设置动画效果
+                allowAdditions:false //允许添加新的菜单项
+            });
+        </script>
+
+        <script type="text/javascript">
+            function req_sample() {
+                var dsname = $("#dataset_name").text().toLowerCase();
+                $.post("/sample", JSON.stringify({"dataset_name" : dsname}), function(data, status) {
+                    if(status == "success") {
+                        text = JSON.parse(data)["sample"];
+                        document.getElementById("text").value = text;
+                    } else {
+                        alert("好像出了一点问题，再试试？");
+                    }
+                });
+            }
+
+            function req_ner() {
+                var dsname = $("#dataset_name").text().toLowerCase();
+                var mdname = $("#model_name").text();
+                var text = $("#text").val();
+                data = JSON.stringify({
+                    "dataset_name" : dsname,
+                    "model_name" : mdname,
+                    "text" : text
+                })
+                //console.log(data);
+                $.post("/NER", data, function(data, status) {
+                    if(status == "success") {
+                        result_dom = document.getElementById("result");
+                        result = JSON.parse(data);
+                        //result_dom.innerText = data;
+                        rhtml = "";
+                        for(i = 0; i < result.length; i++) {
+                            if(result[i][1] == "O") { 
+                                rhtml += "<p>" + result[i][0] + "<a class=\"ui tag label\">非术语</a> </p>" ;
+                            } else {
+                                ch_tagname = result[i][1];
+                                if(dsname == "ncbi-disease")ch_tagname = "疾病或症状";
+                                rhtml += "<p style=\"color:" + document.color_map[result[i][1]] + "\">" + result[i][0] + "<a class='ui tag label'>" + ch_tagname + "</a></p>";
+                            }
+                        }
+                        result_dom.innerHTML = rhtml;
+                    } else {
+                        alert("好像出了一点问题，再试试？")
+                    }
+                });
+            }
+        </script>
+    </body>
+</html>

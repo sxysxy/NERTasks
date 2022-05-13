@@ -3,8 +3,6 @@
 # License: LGPL-v3
 # NER模型（们）：BiLSTM-Linear, BiLSTM-Linear-CRF, BERT-BiLSTM-Linear-CRF, BERT(Prompt)
  
-from base64 import decode
-from turtle import forward
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -251,7 +249,7 @@ class NER_BERT_Prompt(INERModel):
         '''
         
     def forward(self, **X):
-        return self.bert(input_ids=X["input_ids"], labels=X["labels"], return_dict=True)
+        return self.bert(input_ids=X["input_ids"], labels=X["labels"] if "labels" in X else None, return_dict=True)
 
     def decode_to_tags(self, **X):
         logits = self.forward(**X)['logits'].squeeze(0)[1:-1, :]

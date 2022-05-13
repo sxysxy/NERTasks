@@ -4,7 +4,6 @@
 # 训练器
 
 from typing import Callable
-from numpy import full
 import torch
 import torch.nn as nn
 import torch.optim as optim

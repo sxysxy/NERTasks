@@ -451,3 +451,16 @@ def auto_create_model(config : Configs, tokenizer):
         return NER_BERT_Prompt(auto_get_bert_name_or_path(config), auto_get_tag_names(config))
     else:
         raise RuntimeError(f"Can't get model {config}")
+
+saved_model_caches = {}
+
+def get_saved_model(dataset_name, model_name):
+    global saved_model_caches
+    dir = f"{get_base_dirname()}/results/{dataset_name}-{model_name}"
+    if dir in saved_model_caches:
+        return saved_model_caches[dir]
+
+    tk = AutoTokenizer.from_pretrained(dir)
+    model = torch.load(f"{dir}/model.bin", map_location='cpu')
+    saved_model_caches[dir] = (tk, model)
+    return tk, model
