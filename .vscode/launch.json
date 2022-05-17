@@ -57,6 +57,16 @@
                 "--model", "BERT-Prompt",
                 "--bert_name_or_path", "bert-base-chinese"
             ]
+        },
+        {
+            "name" : "logtrans",
+            "type": "python",
+            "request": "launch",
+            "program": "pretrain_transition.py",
+            "args" : [
+                "--dataset", "ccks2019",
+                "--model", "BERT-Linear-CRF"
+            ]
         }
     ]
 

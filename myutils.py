@@ -53,6 +53,7 @@ class Configs:
             "overall_macro" : Configs.OVERALL_MACRO
         }[namespec.f1]
         self.save_model : bool = namespec.save_model
+        self.use_pretrained_transition = namespec.use_pretrained_transition
     
     @classmethod
     def parse_from(cls, argv):
@@ -101,6 +102,8 @@ class Configs:
                             help="Micro F1 or Macro F1?")
         ps.add_argument("--save_model", action="store_true", default=False,
                             help="Whether to save the best model during training")
+        ps.add_argument("--use_pretrained_transition", action='store_true', default=False,
+                            help="Use assets/pretrained_transitions/{dataset}-transition.bin")
         return ps.parse_args(argv)
     
     cached_config = None
@@ -124,13 +127,17 @@ class Configs:
         return self.model_name in ["BERT-Prompt"]
 
     @property
+    def using_CRF(self):
+        return self.model_name in ["BiLSTM-Linear-CRF", "BERT-BiLSTM-Linear-CRF", "BERT-Linear-CRF"]
+
+    @property
     def __dict__(self):
         d = {}
         for k in ["dataset_name", "ner_epoches", "warmup_ratio", 
          "grad_acc", "batch_size", "clip_grad_norm", "ner_lr", "ner_weight_decay",
          "model_name", "bert_name_or_path", "label_smooth_factor", "dropout_ratio",
          "lstm_layers", "lstm_hidden_size", "embedding_size", "random_seed", 
-         "few_shot", "f1", "few_shot_seed"]:
+         "few_shot", "f1", "few_shot_seed", "use_pretrained_transition"]:
             d[k] = self[k]
         return d
 
@@ -432,25 +439,32 @@ def auto_get_tokenizer(config : Configs):
 
 def auto_create_model(config : Configs, tokenizer):
     if config.model_name == "BiLSTM-Linear":
-        return NER_BiLSTM_Linear(tokenizer.vocab_size, len(auto_get_tag_names(config)), 
+        m = NER_BiLSTM_Linear(tokenizer.vocab_size, len(auto_get_tag_names(config)), 
                     config.embedding_size, config.lstm_layers, config.lstm_hidden_size, config.dropout_ratio)
     elif config.model_name == "BiLSTM-Linear-CRF":
-        return NER_BiLSTM_Linear_CRF(tokenizer.vocab_size, len(auto_get_tag_names(config)),
+        m = NER_BiLSTM_Linear_CRF(tokenizer.vocab_size, len(auto_get_tag_names(config)),
                     config.embedding_size, config.lstm_layers, config.lstm_hidden_size, config.dropout_ratio)
     elif config.model_name == "BERT-Linear":
-        return NER_BERT_Linear(auto_get_bert_name_or_path(config), len(auto_get_tag_names(config)), config.dropout_ratio)
+        m = NER_BERT_Linear(auto_get_bert_name_or_path(config), len(auto_get_tag_names(config)), config.dropout_ratio)
     elif config.model_name == "BERT-Linear-CRF":
-        return NER_BERT_Linear_CRF(auto_get_bert_name_or_path(config), len(auto_get_tag_names(config)), config.dropout_ratio)
+        m = NER_BERT_Linear_CRF(auto_get_bert_name_or_path(config), len(auto_get_tag_names(config)), config.dropout_ratio)
     elif config.model_name == "BERT-BiLSTM-Linear":
-        return NER_BERT_BiLSTM_Linear(auto_get_bert_name_or_path(config), len(auto_get_tag_names(config)), config.lstm_layers,
+        m = NER_BERT_BiLSTM_Linear(auto_get_bert_name_or_path(config), len(auto_get_tag_names(config)), config.lstm_layers,
                             config.lstm_hidden_size, config.dropout_ratio)
     elif config.model_name == "BERT-BiLSTM-Linear-CRF":
-        return NER_BERT_BiLSTM_Linear_CRF(auto_get_bert_name_or_path(config), len(auto_get_tag_names(config)), config.lstm_layers, config.lstm_hidden_size,
+        m = NER_BERT_BiLSTM_Linear_CRF(auto_get_bert_name_or_path(config), len(auto_get_tag_names(config)), config.lstm_layers, config.lstm_hidden_size,
                             config.dropout_ratio)
     elif config.model_name == "BERT-Prompt":
-        return NER_BERT_Prompt(auto_get_bert_name_or_path(config), auto_get_tag_names(config))
+        m = NER_BERT_Prompt(auto_get_bert_name_or_path(config), auto_get_tag_names(config))
     else:
         raise RuntimeError(f"Can't get model {config}")
+    if config.using_CRF and config.use_pretrained_transition:
+        if config.few_shot:
+            few_name = config.dataset_name + "-" + str(config.few_shot) + "-" + str(config.few_shot_seed) 
+            m.crf.init_transitions(torch.load(f"{get_base_dirname()}/assets/pretrained_transitions/{few_name}-transition.bin"))
+        else:
+            m.crf.init_transitions(torch.load(f"{get_base_dirname()}/assets/pretrained_transitions/{config.dataset_name}-transition.bin"))
+    return m
 
 saved_model_caches = {}
 

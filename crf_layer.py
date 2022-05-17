@@ -94,5 +94,8 @@ class CRFLayer(nn.Module):
             #return np.array(path, dtype=int) 
 
     def init_transitions(self, trans : torch.Tensor, require_grad=True):
+        assert trans.shape[0] == self.real_tag_size and trans.shape[1] == self.real_tag_size
         self.trans = nn.Parameter(trans, requires_grad=require_grad)
+        self.trans.data[self.start_tag_id, :] = -10000.0    #任意标签转移到START_TAG，分数-10000
+        self.trans.data[:, self.end_tag_id] = -10000.0      #从END_TAG转移到任意标签，分数-10000
     

@@ -1,5 +1,6 @@
 assets/raw_datasets
 assets/pretrained_models
+assets/pretrained_transitions
 results
 run_*.sh
 
